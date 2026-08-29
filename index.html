@@ -56,7 +56,61 @@ h1,h2,h3,h4{margin:0;line-height:1.12;text-wrap:balance;font-family:"Rubik","Hee
 p{margin:0}
 img{display:block;max-width:100%}
 .wrap{max-width:80rem;margin-inline:auto;padding-inline:clamp(1rem,4vw,2.75rem)}
-.ico{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+/* ═══════ animated duotone icon system ═══════ */
+.ico{width:1em;height:1em;flex:none;overflow:visible}
+.ico *{transform-box:fill-box;transform-origin:center}
+.ico .f{fill:var(--ic,currentColor);stroke:none;opacity:.26}
+.ico .s{fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+
+@keyframes ic-spin{to{transform:rotate(360deg)}}
+@keyframes ic-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.7px)}}
+@keyframes ic-swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes ic-rock{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes ic-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.13)}}
+@keyframes ic-rise{0%,100%{transform:translateY(1px)}50%{transform:translateY(-2.2px)}}
+@keyframes ic-drift{0%,100%{transform:translateX(-1.3px)}50%{transform:translateX(1.3px)}}
+@keyframes ic-blink{0%,44%,52%,100%{opacity:1}47%,49%{opacity:.12}}
+@keyframes ic-twinkle{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.2) rotate(20deg)}}
+@keyframes ic-steam{0%{transform:translateY(1.5px);opacity:0}35%{opacity:.95}100%{transform:translateY(-3.5px);opacity:0}}
+@keyframes ic-flip{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.2)}}
+
+.a-spin{animation:ic-spin 9s linear infinite}
+.a-bob{animation:ic-bob 2.6s ease-in-out infinite}
+.a-swing{animation:ic-swing 2.8s ease-in-out infinite;transform-origin:top center}
+.a-rock{animation:ic-rock 3s ease-in-out infinite;transform-origin:bottom center}
+.a-pulse{animation:ic-pulse 2.4s ease-in-out infinite}
+.a-rise{animation:ic-rise 2.2s ease-in-out infinite}
+.a-drift{animation:ic-drift 3.2s ease-in-out infinite}
+.a-blink{animation:ic-blink 3.6s ease-in-out infinite}
+.a-twinkle{animation:ic-twinkle 3s ease-in-out infinite}
+.a-flip{animation:ic-flip 4s ease-in-out infinite}
+.a-steam>*{animation:ic-steam 2.4s ease-out infinite}
+.a-steam>*:nth-child(2){animation-delay:.8s}
+.a-steam>*:nth-child(3){animation-delay:1.6s}
+
+/* movement is opt-in per context, so the page never fidgets everywhere at once */
+.ico [class*="a-"],.ico.a-spin,.ico.a-bob{animation-play-state:paused}
+.tile .ico [class*="a-"],
+.tile:hover .ico [class*="a-"],
+.chip:hover .ico [class*="a-"],
+.sec-aside:hover .badge .ico [class*="a-"],
+.card:hover .shot .badge .ico [class*="a-"]{animation-play-state:running}
+
+/* the index tiles animate on their own — staggered so they never march in step */
+.tile:nth-child(4n+2) .ico [class*="a-"]{animation-delay:-.7s}
+.tile:nth-child(4n+3) .ico [class*="a-"]{animation-delay:-1.4s}
+.tile:nth-child(4n+4) .ico [class*="a-"]{animation-delay:-2.1s}
+
+@media (prefers-reduced-motion:reduce){
+  .ico [class*="a-"]{animation:none!important}
+}
+
+.tile .ico{--ic:var(--tone)}
+.sec-aside .badge .ico{--ic:var(--tone)}
+.shot .badge .ico{--ic:#fff}
+.shot .badge .ico .f{opacity:.38}
+.chip .ico{--ic:currentColor}
+.chip[aria-pressed="true"] .ico .f{opacity:.45}
 
 /* ═══════ hero ═══════ */
 .hero{position:relative;background:#0E0A28;color:#F3F1FF;overflow:hidden;isolation:isolate}
@@ -260,7 +314,7 @@ footer a:hover{text-decoration:underline}
   <div class="wrap">
     <div class="finder-in">
       <label class="search">
-        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></svg>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="s"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></g></svg>
         <input id="q" type="search" placeholder="חיפוש חוג, יישוב, גיל או מדריך…" autocomplete="off" aria-label="חיפוש פעילות">
       </label>
       <span class="count" id="count"></span>
@@ -303,48 +357,90 @@ const IMG = "img/";
 const IMGMAP = null;                 // hosted build: null · artifact build: inlined data URIs
 const imgSrc = n => IMGMAP ? IMGMAP[n] : IMG + n;
 
-/* icon set — authored here, no external library */
+/* icon set — [ soft duotone fill , stroked line art ] · authored here, no library */
 const I = {
- football:'<circle cx="12" cy="12" r="8.5"/><path d="M12 6.6l3.7 2.7-1.4 4.4H9.7L8.3 9.3z"/><path d="M12 3.5v3.1M3.9 9.9l4.4-.6M20.1 9.9l-4.4-.6M7.4 19.4l2.3-5.7M16.6 19.4l-2.3-5.7"/>',
- basketball:'<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17"/><path d="M6.2 6.2c3.3 3.3 3.3 8.3 0 11.6M17.8 6.2c-3.3 3.3-3.3 8.3 0 11.6"/>',
- chess:'<path d="M12 3v2.4M10.7 4.2h2.6"/><circle cx="12" cy="8.1" r="2.4"/><path d="M9.5 10.7h5l-.8 5.1h-3.4z"/><path d="M8.7 15.8h6.6l.8 3.4H7.9z"/><path d="M6.8 19.2h10.4"/>',
- belt:'<rect x="3" y="8.6" width="18" height="3.6" rx="1.2"/><path d="M10.1 12.2v5.6l1.9-1.5 1.9 1.5v-5.6"/><path d="M6.8 10.4h10.4"/>',
- fist:'<path d="M8 11.2V8.4a1.4 1.4 0 0 1 2.8 0v2.8M10.8 11.2V7.4a1.4 1.4 0 0 1 2.8 0v3.8M13.6 11.2V8.4a1.4 1.4 0 0 1 2.8 0v2.8"/><path d="M16.4 11.2V10a1.4 1.4 0 0 1 2.8 0v4a6 6 0 0 1-6 6h-1.4a6 6 0 0 1-6-6v-2.2a1.4 1.4 0 0 1 2.4-1"/>',
- pair:'<circle cx="7.8" cy="6.4" r="2.3"/><circle cx="16.2" cy="6.4" r="2.3"/><path d="M3.2 20c0-3.4 2-5.7 4.6-5.7s4.6 2.3 4.6 5.7M11.6 20c0-3.4 2-5.7 4.6-5.7s4.6 2.3 4.6 5.7"/>',
- bike:'<circle cx="6" cy="16.4" r="3.6"/><circle cx="18" cy="16.4" r="3.6"/><path d="M6 16.4l4.2-8h3.6l-2.2 8H18"/><path d="M13.4 8.4h2.8M9.6 12.4h5.4"/>',
- gym:'<circle cx="16" cy="4.9" r="1.9"/><path d="M3.6 19.4C5.2 12.6 9.4 9.4 14 9.4c2.7 0 4.8 1.1 6.4 2.8"/><path d="M8 14.4L6.4 19.4M13.8 10.6l2.4 3.6"/>',
- trampoline:'<ellipse cx="12" cy="14.2" rx="8.4" ry="2.9"/><path d="M4.4 15.6L3 20M19.6 15.6L21 20M7 16.5L6.1 20M17 16.5l.9 3.5"/><circle cx="12" cy="5" r="1.7"/><path d="M12 6.7v3.5M9.7 8.2h4.6M10.4 12.6L12 10.2l1.6 2.4"/>',
- tennis:'<circle cx="9" cy="8.6" r="5.6"/><path d="M5.2 4.9l7.6 7.4M5.5 12.3l7-7.4"/><path d="M12.9 12.7L20 20"/>',
- volleyball:'<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5c-3.1 4.1-3.7 9.2-1.7 13.9M12 3.5c3.5 3.4 4.8 8.5 3.4 13.1M3.7 10.4c4.9-1.3 9.8.3 13 4.1M20.4 13.9c-4.7 1.7-9.7.8-13.2-2.5"/>',
- swim:'<circle cx="16.4" cy="6.4" r="1.9"/><path d="M6.2 12.2l4.2-2.5 3.1 2 3.5-1.6"/><path d="M3 15.4c1.5 0 1.5 1.3 3 1.3s1.5-1.3 3-1.3 1.5 1.3 3 1.3 1.5-1.3 3-1.3 1.5 1.3 3 1.3 1.5-1.3 3-1.3"/><path d="M3 19.4c1.5 0 1.5 1.3 3 1.3s1.5-1.3 3-1.3 1.5 1.3 3 1.3 1.5-1.3 3-1.3 1.5 1.3 3 1.3 1.5-1.3 3-1.3"/>',
- dance:'<circle cx="13.4" cy="4.6" r="1.9"/><path d="M13.4 6.5l-1.8 4.6 3.6 2.5L16.4 20M11.6 11.1L8 13.8 5.6 20M15 7.6L19.2 9.6"/>',
- cap:'<path d="M3.5 15.4c0-4.9 3.8-8.4 8.5-8.4s8.5 3.5 8.5 8.4"/><path d="M3.5 15.4h13a4 4 0 0 0 4-4"/><path d="M12 7V4.4"/>',
- note:'<circle cx="7" cy="17.4" r="2.6"/><circle cx="17" cy="15.4" r="2.6"/><path d="M9.6 17.4V6.8l10-2v10.6M9.6 10.4l10-2"/>',
- museum:'<path d="M3 9.6L12 4.2l9 5.4"/><path d="M5.4 9.6V17M9.8 9.6V17M14.2 9.6V17M18.6 9.6V17"/><path d="M3 20.2h18M4.2 17h15.6"/>',
- masks:'<path d="M3.4 6.6h7.8v5.2a3.9 3.9 0 0 1-7.8 0z"/><path d="M5.6 8.7h.01M9 8.7h.01M5.9 11.3c.9.7 2 .7 2.9 0"/><path d="M12.8 6.6h7.8v5.2a3.9 3.9 0 0 1-7.8 0z"/><path d="M15 8.7h.01M18.4 8.7h.01M15.3 12.1c.9-.7 2-.7 2.9 0"/>',
- rocket:'<path d="M12 2.6c2.8 2.4 4.4 5.8 4.4 9.4L14.6 15H9.4l-1.8-3c0-3.6 1.6-7 4.4-9.4z"/><circle cx="12" cy="9.4" r="1.9"/><path d="M9.4 15l-2.6 2.2.7 3.3 2.9-1.6M14.6 15l2.6 2.2-.7 3.3-2.9-1.6"/>',
- robot:'<rect x="4.4" y="8" width="15.2" height="11" rx="2.6"/><circle cx="9.2" cy="12.8" r="1.4"/><circle cx="14.8" cy="12.8" r="1.4"/><path d="M12 8V5M12 3.4v.2M2.4 12v3M21.6 12v3M9.6 16.4h4.8"/>',
- city:'<path d="M3 21V9.6l6-3.4v14.8M9 21V4.2l6 3v13.8M15 21v-8l6 2.4V21M2 21h20"/><path d="M5.6 12.4h1M5.6 15.6h1M11.4 9.4h1.2M11.4 13h1.2M11.4 16.6h1.2M17.4 17h1"/>',
- math:'<rect x="3.4" y="3.4" width="17.2" height="17.2" rx="3.2"/><path d="M6.8 8.6h4.2M8.9 6.5v4.2M13 8.6h4.2M13 14.4h4.2M13 17.4h4.2M6.8 14l4.2 4.2M11 14l-4.2 4.2"/>',
- coin:'<circle cx="12" cy="12" r="8.5"/><path d="M12 6.6v10.8"/><path d="M14.7 9.3c-.6-.9-1.6-1.4-2.7-1.4-1.6 0-2.7 1-2.7 2.3 0 3.1 5.4 1.6 5.4 4.7 0 1.3-1.2 2.3-2.7 2.3-1.1 0-2.1-.5-2.7-1.4"/>',
- palette:'<path d="M12 3.2c-4.9 0-8.8 3.7-8.8 8.3s3.9 8.3 8.8 8.3c1.3 0 2.2-.9 2.2-2 0-.6-.2-1-.6-1.4-.4-.4-.6-.8-.6-1.3 0-1.1.9-2 2-2h1.4c2.5 0 4.4-1.9 4.4-4.3 0-3.4-4-5.6-8.8-5.6z"/><circle cx="7.6" cy="11.6" r="1.1"/><circle cx="10.6" cy="7.7" r="1.1"/><circle cx="15.2" cy="8.2" r="1.1"/>',
- flask:'<path d="M9.4 3v6.3l-4.9 8.4c-.9 1.5.2 3.3 2 3.3h11c1.8 0 2.9-1.8 2-3.3l-4.9-8.4V3"/><path d="M7.9 3h8.2M7 15h10"/><circle cx="10.6" cy="17.4" r=".9"/><circle cx="14" cy="18.6" r=".7"/>',
- people:'<circle cx="8.4" cy="8" r="2.8"/><circle cx="16.4" cy="9" r="2.2"/><path d="M2.8 19.4c0-3.3 2.5-5.6 5.6-5.6s5.6 2.3 5.6 5.6"/><path d="M14.8 13.9c2.9-.6 6.4 1.2 6.4 5.5"/>',
- compass:'<circle cx="12" cy="12" r="8.6"/><path d="M15.6 8.4l-2.1 5.5-5.5 2.1 2.1-5.5z"/><circle cx="12" cy="12" r=".9"/>',
- megaphone:'<path d="M3.4 10v4a1.6 1.6 0 0 0 1.6 1.6h2.2l7.6 4.4V4L7.2 8.4H5A1.6 1.6 0 0 0 3.4 10z"/><path d="M18.2 9.2a4 4 0 0 1 0 5.6"/><path d="M7.2 15.6v3.1a1.6 1.6 0 0 0 3.2 0v-1.6"/>',
- shield:'<path d="M12 3l7.4 3v6c0 4.5-3 7.8-7.4 9.4C7.6 19.8 4.6 16.5 4.6 12V6z"/><path d="M9 12.2l2.2 2.2 4.2-4.4"/>',
- star:'<path d="M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1.1 6.1L12 17.2l-5.5 2.9 1.1-6.1L3.2 9.7l6.1-.9z"/>',
- book:'<path d="M4 4.6h5.5c1.4 0 2.5 1.1 2.5 2.5v12c0-1.4-1.1-2.5-2.5-2.5H4z"/><path d="M20 4.6h-5.5c-1.4 0-2.5 1.1-2.5 2.5v12c0-1.4 1.1-2.5 2.5-2.5H20z"/>',
- baby:'<circle cx="12" cy="8.8" r="5.4"/><circle cx="10.1" cy="8.5" r=".9"/><circle cx="13.9" cy="8.5" r=".9"/><path d="M10.4 11.4c1 .8 2.2.8 3.2 0"/><path d="M6.6 14.4C5.1 15.9 4.3 17.8 4.3 20M17.4 14.4c1.5 1.5 2.3 3.4 2.3 5.6M9 20h6"/>',
- briefcase:'<rect x="3" y="7.4" width="18" height="12.2" rx="2.6"/><path d="M8.4 7.4V6a2 2 0 0 1 2-2h3.2a2 2 0 0 1 2 2v1.4"/><path d="M3 12.6h18M10.4 12.6v2h3.2v-2"/>',
- coffee:'<path d="M4 8h13v6.4a4.6 4.6 0 0 1-4.6 4.6H8.6A4.6 4.6 0 0 1 4 14.4z"/><path d="M17 10.2h1.8a2.6 2.6 0 0 1 0 5.2H17"/><path d="M7 5.2V3.2M10.5 5.2V3.2M14 5.2V3.2M3 21h15"/>',
- backpack:'<rect x="4.5" y="7" width="15" height="13" rx="3.6"/><path d="M8.6 7V5.7A3.4 3.4 0 0 1 12 2.3a3.4 3.4 0 0 1 3.4 3.4V7"/><path d="M8.6 20v-5.4a1.5 1.5 0 0 1 1.5-1.5h3.8a1.5 1.5 0 0 1 1.5 1.5V20M10.4 16h3.2"/>',
- flower:'<circle cx="12" cy="9.8" r="2.2"/><path d="M12 7.6c0-2 1-3.4 2.6-3.4S17.2 5.6 17.2 7.2c0 1-.7 1.9-1.7 2.2M12 7.6c0-2-1-3.4-2.6-3.4S6.8 5.6 6.8 7.2c0 1 .7 1.9 1.7 2.2M13.6 11.3c1.8.8 2.8 2.2 2.2 3.7-.5 1.4-2.2 1.9-3.6 1.1M10.4 11.3c-1.8.8-2.8 2.2-2.2 3.7.5 1.4 2.2 1.9 3.6 1.1"/><path d="M12 16.4V21"/>',
- bus:'<rect x="3.4" y="4.4" width="17.2" height="12.4" rx="2.6"/><path d="M3.4 10.6h17.2"/><circle cx="7.4" cy="19" r="1.6"/><circle cx="16.6" cy="19" r="1.6"/><path d="M6.4 14h2M15.6 14h2M9 4.4v6.2M15 4.4v6.2"/>',
- mic:'<rect x="9" y="2.6" width="6" height="11" rx="3"/><path d="M5.4 11.4a6.6 6.6 0 0 0 13.2 0"/><path d="M12 18v3.4M9 21.4h6"/>',
- sparkle:'<path d="M11 3l1.7 4.8L17.5 9.5l-4.8 1.7L11 16l-1.7-4.8L4.5 9.5l4.8-1.7z"/><path d="M17.8 15.2l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>'
+ football:['<circle cx="12" cy="12" r="8.6"/>',
+  '<g class="a-spin"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.1l3.6 2.7-1.4 4.2H9.8L8.4 9.8z"/><path d="M12 3.4v3.7M4.3 9.4l4.1.4M19.7 9.4l-4.1.4M7.6 19.5l2.2-5.5M16.4 19.5l-2.2-5.5"/></g>'],
+ basketball:['<circle cx="12" cy="12" r="8.6"/>',
+  '<g class="a-spin"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/><path d="M6.1 6.1c3.3 3.3 3.3 8.5 0 11.8M17.9 6.1c-3.3 3.3-3.3 8.5 0 11.8"/></g>'],
+ chess:['<path d="M8.6 15.6h6.8l.9 3.6H7.7z"/>',
+  '<g class="a-rock"><path d="M12 2.9v2.5M10.6 4.1h2.8"/><circle cx="12" cy="8" r="2.4"/><path d="M9.5 10.6h5l-.8 5h-3.4z"/><path d="M8.6 15.6h6.8l.9 3.6H7.7z"/><path d="M6.7 19.2h10.6"/></g>'],
+ belt:['<rect x="3" y="8.6" width="18" height="3.7" rx="1.3"/>',
+  '<rect x="3" y="8.6" width="18" height="3.7" rx="1.3"/><path d="M6.8 10.4h10.4"/><g class="a-swing"><path d="M10.1 12.3v5.6l1.9-1.5 1.9 1.5v-5.6"/></g>'],
+ fist:['<path d="M5.6 11.6a1.4 1.4 0 0 1 2.4-1V10a1.4 1.4 0 0 1 2.8 0 1.4 1.4 0 0 1 2.8 0 1.4 1.4 0 0 1 2.8 0 1.4 1.4 0 0 1 2.8 0v4a6 6 0 0 1-6 6h-1.6a6 6 0 0 1-6-6z"/>',
+  '<g class="a-drift"><path d="M8 11.2V8.4a1.4 1.4 0 0 1 2.8 0v2.8M10.8 11.2V7.4a1.4 1.4 0 0 1 2.8 0v3.8M13.6 11.2V8.4a1.4 1.4 0 0 1 2.8 0v2.8"/><path d="M16.4 11.2V10a1.4 1.4 0 0 1 2.8 0v4a6 6 0 0 1-6 6h-1.4a6 6 0 0 1-6-6v-2.2a1.4 1.4 0 0 1 2.4-1"/></g>'],
+ pair:['<circle cx="7.8" cy="6.4" r="2.4"/><circle cx="16.2" cy="6.4" r="2.4"/>',
+  '<g class="a-bob"><circle cx="7.8" cy="6.4" r="2.4"/><path d="M3.2 20c0-3.4 2-5.8 4.6-5.8s4.6 2.4 4.6 5.8"/></g><g class="a-bob" style="animation-delay:-1.3s"><circle cx="16.2" cy="6.4" r="2.4"/><path d="M11.6 20c0-3.4 2-5.8 4.6-5.8s4.6 2.4 4.6 5.8"/></g>'],
+ bike:['<circle cx="6" cy="16.4" r="3.7"/><circle cx="18" cy="16.4" r="3.7"/>',
+  '<g class="a-spin"><circle cx="6" cy="16.4" r="3.7"/><path d="M6 12.7v7.4M2.3 16.4h7.4"/></g><g class="a-spin"><circle cx="18" cy="16.4" r="3.7"/><path d="M18 12.7v7.4M14.3 16.4h7.4"/></g><path d="M6 16.4l4.2-8h3.6l-2.2 8H18M13.4 8.4h2.8"/>'],
+ gym:['<circle cx="16" cy="4.9" r="2"/>',
+  '<g class="a-rock"><circle cx="16" cy="4.9" r="2"/><path d="M3.6 19.4C5.2 12.6 9.4 9.4 14 9.4c2.7 0 4.8 1.1 6.4 2.8"/><path d="M8 14.4L6.4 19.4M13.8 10.6l2.4 3.6"/></g>'],
+ trampoline:['<ellipse cx="12" cy="14.2" rx="8.4" ry="2.9"/>',
+  '<ellipse cx="12" cy="14.2" rx="8.4" ry="2.9"/><path d="M4.4 15.6L3 20M19.6 15.6L21 20M7 16.5L6.1 20M17 16.5l.9 3.5"/><g class="a-rise"><circle cx="12" cy="5" r="1.8"/><path d="M12 6.8v3.4M9.7 8.2h4.6M10.4 12.6L12 10.2l1.6 2.4"/></g>'],
+ tennis:['<circle cx="9" cy="8.6" r="5.7"/>',
+  '<circle cx="9" cy="8.6" r="5.7"/><path d="M5.2 4.9l7.6 7.4M5.5 12.3l7-7.4"/><path d="M12.9 12.7L20 20"/><g class="a-bob"><circle cx="18.6" cy="5.4" r="1.9"/></g>'],
+ volleyball:['<circle cx="12" cy="12" r="8.6"/>',
+  '<g class="a-spin"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4c-3.1 4.1-3.7 9.2-1.7 13.9M12 3.4c3.5 3.4 4.8 8.5 3.4 13.1M3.6 10.4c4.9-1.3 9.8.3 13 4.1M20.4 13.9c-4.7 1.7-9.7.8-13.2-2.5"/></g>'],
+ swim:['<circle cx="16.4" cy="6.4" r="2"/>',
+  '<circle cx="16.4" cy="6.4" r="2"/><path d="M6.2 12.2l4.2-2.5 3.1 2 3.5-1.6"/><g class="a-drift"><path d="M2 15.4c1.6 0 1.6 1.4 3.2 1.4s1.6-1.4 3.2-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4"/><path d="M2 19.4c1.6 0 1.6 1.4 3.2 1.4s1.6-1.4 3.2-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4 1.6 1.4 3.2 1.4 1.6-1.4 3.2-1.4"/></g>'],
+ dance:['<circle cx="13.4" cy="4.6" r="2"/>',
+  '<g class="a-rock"><circle cx="13.4" cy="4.6" r="2"/><path d="M13.4 6.6l-1.8 4.5 3.6 2.5L16.4 20M11.6 11.1L8 13.8 5.6 20M15 7.6L19.2 9.6"/></g>'],
+ cap:['<path d="M3.5 15.4c0-4.9 3.8-8.4 8.5-8.4s8.5 3.5 8.5 8.4z"/>',
+  '<g class="a-rock"><path d="M3.5 15.4c0-4.9 3.8-8.4 8.5-8.4s8.5 3.5 8.5 8.4"/><path d="M3.5 15.4h13a4 4 0 0 0 4-4"/><path d="M12 7V4.4"/></g>'],
+ note:['<circle cx="7" cy="17.4" r="2.7"/><circle cx="17" cy="15.4" r="2.7"/>',
+  '<g class="a-bob"><circle cx="7" cy="17.4" r="2.7"/></g><g class="a-bob" style="animation-delay:-1.3s"><circle cx="17" cy="15.4" r="2.7"/></g><path d="M9.7 17.4V6.8l10-2v10.6M9.7 10.4l10-2"/>'],
+ museum:['<path d="M3 9.6L12 4.2l9 5.4z"/>',
+  '<g class="a-pulse"><path d="M3 9.6L12 4.2l9 5.4"/></g><path d="M5.4 9.6V17M9.8 9.6V17M14.2 9.6V17M18.6 9.6V17"/><path d="M3 20.2h18M4.2 17h15.6"/>'],
+ masks:['<path d="M12.8 6.6h7.8v5.2a3.9 3.9 0 0 1-7.8 0z"/>',
+  '<g class="a-rock"><path d="M3.4 6.6h7.8v5.2a3.9 3.9 0 0 1-7.8 0z"/><path d="M5.6 8.7h.01M9 8.7h.01M5.9 11.3c.9.7 2 .7 2.9 0"/></g><g class="a-rock" style="animation-delay:-1.5s"><path d="M12.8 6.6h7.8v5.2a3.9 3.9 0 0 1-7.8 0z"/><path d="M15 8.7h.01M18.4 8.7h.01M15.3 12.1c.9-.7 2-.7 2.9 0"/></g>'],
+ rocket:['<path d="M12 2.6c2.8 2.4 4.4 5.8 4.4 9.4L14.6 15H9.4l-1.8-3c0-3.6 1.6-7 4.4-9.4z"/>',
+  '<g class="a-rise"><path d="M12 2.6c2.8 2.4 4.4 5.8 4.4 9.4L14.6 15H9.4l-1.8-3c0-3.6 1.6-7 4.4-9.4z"/><circle cx="12" cy="9.4" r="1.9"/><path d="M9.4 15l-2.6 2.2.7 3.3 2.9-1.6M14.6 15l2.6 2.2-.7 3.3-2.9-1.6"/></g>'],
+ robot:['<rect x="4.4" y="8" width="15.2" height="11" rx="2.6"/>',
+  '<rect x="4.4" y="8" width="15.2" height="11" rx="2.6"/><g class="a-blink"><circle cx="9.2" cy="12.8" r="1.4"/><circle cx="14.8" cy="12.8" r="1.4"/></g><path d="M12 8V5M2.4 12v3M21.6 12v3M9.6 16.4h4.8"/><g class="a-bob"><circle cx="12" cy="3.6" r="1.1"/></g>'],
+ city:['<path d="M9 21V4.2l6 3V21z"/>',
+  '<path d="M3 21V9.6l6-3.4v14.8M9 21V4.2l6 3v13.8M15 21v-8l6 2.4V21M2 21h20"/><g class="a-blink"><path d="M5.6 12.4h1M11.4 9.4h1.2M11.4 13h1.2M17.4 17h1"/></g><path d="M5.6 15.6h1M11.4 16.6h1.2"/>'],
+ math:['<rect x="3.4" y="3.4" width="17.2" height="17.2" rx="3.2"/>',
+  '<rect x="3.4" y="3.4" width="17.2" height="17.2" rx="3.2"/><g class="a-pulse"><path d="M6.8 8.6h4.2M8.9 6.5v4.2"/></g><path d="M13 8.6h4.2M13 14.4h4.2M13 17.4h4.2M6.8 14l4.2 4.2M11 14l-4.2 4.2"/>'],
+ coin:['<circle cx="12" cy="12" r="8.6"/>',
+  '<g class="a-flip"><circle cx="12" cy="12" r="8.6"/><path d="M12 6.6v10.8"/><path d="M14.7 9.3c-.6-.9-1.6-1.4-2.7-1.4-1.6 0-2.7 1-2.7 2.3 0 3.1 5.4 1.6 5.4 4.7 0 1.3-1.2 2.3-2.7 2.3-1.1 0-2.1-.5-2.7-1.4"/></g>'],
+ palette:['<path d="M12 3.2c-4.9 0-8.8 3.7-8.8 8.3s3.9 8.3 8.8 8.3c1.3 0 2.2-.9 2.2-2 0-.6-.2-1-.6-1.4-.4-.4-.6-.8-.6-1.3 0-1.1.9-2 2-2h1.4c2.5 0 4.4-1.9 4.4-4.3 0-3.4-4-5.6-8.8-5.6z"/>',
+  '<g class="a-rock"><path d="M12 3.2c-4.9 0-8.8 3.7-8.8 8.3s3.9 8.3 8.8 8.3c1.3 0 2.2-.9 2.2-2 0-.6-.2-1-.6-1.4-.4-.4-.6-.8-.6-1.3 0-1.1.9-2 2-2h1.4c2.5 0 4.4-1.9 4.4-4.3 0-3.4-4-5.6-8.8-5.6z"/><circle cx="7.6" cy="11.6" r="1.1"/><circle cx="10.6" cy="7.7" r="1.1"/><circle cx="15.2" cy="8.2" r="1.1"/></g>'],
+ flask:['<path d="M7 15h10l2.4 4.2c.9 1.5-.2 3.3-2 3.3H6.6c-1.8 0-2.9-1.8-2-3.3z"/>',
+  '<path d="M9.4 3v6.3l-4.9 8.4c-.9 1.5.2 3.3 2 3.3h11c1.8 0 2.9-1.8 2-3.3l-4.9-8.4V3"/><path d="M7.9 3h8.2M7 15h10"/><g class="a-rise"><circle cx="10.6" cy="17.6" r=".9"/></g><g class="a-rise" style="animation-delay:-1.1s"><circle cx="14" cy="18.6" r=".7"/></g>'],
+ people:['<circle cx="8.4" cy="8" r="2.9"/><circle cx="16.4" cy="9" r="2.3"/>',
+  '<g class="a-bob"><circle cx="8.4" cy="8" r="2.9"/><path d="M2.8 19.4c0-3.3 2.5-5.6 5.6-5.6s5.6 2.3 5.6 5.6"/></g><g class="a-bob" style="animation-delay:-1.3s"><circle cx="16.4" cy="9" r="2.3"/><path d="M14.8 13.9c2.9-.6 6.4 1.2 6.4 5.5"/></g>'],
+ compass:['<circle cx="12" cy="12" r="8.6"/>',
+  '<circle cx="12" cy="12" r="8.6"/><g class="a-spin"><path d="M15.6 8.4l-2.1 5.5-5.5 2.1 2.1-5.5z"/></g><circle cx="12" cy="12" r=".9"/>'],
+ megaphone:['<path d="M3.4 10v4a1.6 1.6 0 0 0 1.6 1.6h2.2l7.6 4.4V4L7.2 8.4H5A1.6 1.6 0 0 0 3.4 10z"/>',
+  '<g class="a-rock"><path d="M3.4 10v4a1.6 1.6 0 0 0 1.6 1.6h2.2l7.6 4.4V4L7.2 8.4H5A1.6 1.6 0 0 0 3.4 10z"/><path d="M7.2 15.6v3.1a1.6 1.6 0 0 0 3.2 0v-1.6"/></g><g class="a-pulse"><path d="M18.2 9.2a4 4 0 0 1 0 5.6"/></g>'],
+ shield:['<path d="M12 3l7.4 3v6c0 4.5-3 7.8-7.4 9.4C7.6 19.8 4.6 16.5 4.6 12V6z"/>',
+  '<g class="a-pulse"><path d="M12 3l7.4 3v6c0 4.5-3 7.8-7.4 9.4C7.6 19.8 4.6 16.5 4.6 12V6z"/><path d="M9 12.2l2.2 2.2 4.2-4.4"/></g>'],
+ star:['<path d="M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1.1 6.1L12 17.2l-5.5 2.9 1.1-6.1L3.2 9.7l6.1-.9z"/>',
+  '<g class="a-twinkle"><path d="M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1.1 6.1L12 17.2l-5.5 2.9 1.1-6.1L3.2 9.7l6.1-.9z"/></g>'],
+ book:['<path d="M4 4.6h5.5c1.4 0 2.5 1.1 2.5 2.5v12c0-1.4-1.1-2.5-2.5-2.5H4z"/>',
+  '<path d="M4 4.6h5.5c1.4 0 2.5 1.1 2.5 2.5v12c0-1.4-1.1-2.5-2.5-2.5H4z"/><g class="a-swing"><path d="M20 4.6h-5.5c-1.4 0-2.5 1.1-2.5 2.5v12c0-1.4 1.1-2.5 2.5-2.5H20z"/></g>'],
+ baby:['<circle cx="12" cy="8.8" r="5.5"/>',
+  '<g class="a-rock"><circle cx="12" cy="8.8" r="5.5"/><g class="a-blink"><circle cx="10.1" cy="8.5" r=".9"/><circle cx="13.9" cy="8.5" r=".9"/></g><path d="M10.4 11.4c1 .8 2.2.8 3.2 0"/></g><path d="M6.6 14.4C5.1 15.9 4.3 17.8 4.3 20M17.4 14.4c1.5 1.5 2.3 3.4 2.3 5.6M9 20h6"/>'],
+ briefcase:['<rect x="3" y="7.4" width="18" height="12.2" rx="2.6"/>',
+  '<g class="a-rock"><rect x="3" y="7.4" width="18" height="12.2" rx="2.6"/><path d="M8.4 7.4V6a2 2 0 0 1 2-2h3.2a2 2 0 0 1 2 2v1.4"/><path d="M3 12.6h18M10.4 12.6v2h3.2v-2"/></g>'],
+ coffee:['<path d="M4 8h13v6.4a4.6 4.6 0 0 1-4.6 4.6H8.6A4.6 4.6 0 0 1 4 14.4z"/>',
+  '<path d="M4 8h13v6.4a4.6 4.6 0 0 1-4.6 4.6H8.6A4.6 4.6 0 0 1 4 14.4z"/><path d="M17 10.2h1.8a2.6 2.6 0 0 1 0 5.2H17"/><path d="M3 21h15"/><g class="a-steam"><path d="M7 5.4V3.2"/><path d="M10.5 5.4V3.2"/><path d="M14 5.4V3.2"/></g>'],
+ backpack:['<rect x="4.5" y="7" width="15" height="13" rx="3.6"/>',
+  '<g class="a-bob"><rect x="4.5" y="7" width="15" height="13" rx="3.6"/><path d="M8.6 7V5.7A3.4 3.4 0 0 1 12 2.3a3.4 3.4 0 0 1 3.4 3.4V7"/><path d="M8.6 20v-5.4a1.5 1.5 0 0 1 1.5-1.5h3.8a1.5 1.5 0 0 1 1.5 1.5V20M10.4 16h3.2"/></g>'],
+ flower:['<path d="M12 7.6c0-2 1-3.4 2.6-3.4S17.2 5.6 17.2 7.2c0 1-.7 1.9-1.7 2.2 1.8.8 2.8 2.2 2.2 3.7-.5 1.4-2.2 1.9-3.6 1.1.1 1.9-.7 3.4-2.1 3.4s-2.2-1.5-2.1-3.4c-1.4.8-3.1.3-3.6-1.1-.6-1.5.4-2.9 2.2-3.7-1-.3-1.7-1.2-1.7-2.2 0-1.6 1-3 2.6-3s2.6 1.4 2.6 3.4z"/>',
+  '<g class="a-spin" style="animation-duration:16s"><circle cx="12" cy="9.8" r="2.2"/><path d="M12 7.6c0-2 1-3.4 2.6-3.4S17.2 5.6 17.2 7.2c0 1-.7 1.9-1.7 2.2M12 7.6c0-2-1-3.4-2.6-3.4S6.8 5.6 6.8 7.2c0 1 .7 1.9 1.7 2.2M13.6 11.3c1.8.8 2.8 2.2 2.2 3.7-.5 1.4-2.2 1.9-3.6 1.1M10.4 11.3c-1.8.8-2.8 2.2-2.2 3.7.5 1.4 2.2 1.9 3.6 1.1"/></g><path d="M12 16.4V21"/>'],
+ bus:['<rect x="3.4" y="4.4" width="17.2" height="12.4" rx="2.6"/>',
+  '<g class="a-bob"><rect x="3.4" y="4.4" width="17.2" height="12.4" rx="2.6"/><path d="M3.4 10.6h17.2M6.4 14h2M15.6 14h2M9 4.4v6.2M15 4.4v6.2"/></g><g class="a-spin"><circle cx="7.4" cy="19" r="1.7"/></g><g class="a-spin"><circle cx="16.6" cy="19" r="1.7"/></g>'],
+ mic:['<rect x="9" y="2.6" width="6" height="11" rx="3"/>',
+  '<g class="a-pulse"><rect x="9" y="2.6" width="6" height="11" rx="3"/></g><path d="M5.4 11.4a6.6 6.6 0 0 0 13.2 0"/><path d="M12 18v3.4M9 21.4h6"/>'],
+ sparkle:['<path d="M11 3l1.7 4.8 4.8 1.7-4.8 1.7L11 16l-1.7-4.8L4.5 9.5l4.8-1.7z"/>',
+  '<g class="a-twinkle"><path d="M11 3l1.7 4.8 4.8 1.7-4.8 1.7L11 16l-1.7-4.8L4.5 9.5l4.8-1.7z"/></g><g class="a-twinkle" style="animation-delay:-1.5s"><path d="M17.8 15.2l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></g>']
 };
-const icon = (n, cls) => `<svg class="ico ${cls||""}" viewBox="0 0 24 24" aria-hidden="true">${I[n]||I.sparkle}</svg>`;
+const icon = (n, cls) => {
+  const [f, s] = I[n] || I.sparkle;
+  return `<svg class="ico ${cls||""}" viewBox="0 0 24 24" aria-hidden="true">` +
+         `<g class="f">${f}</g><g class="s">${s}</g></svg>`;
+};
 
 /* per-activity icon + photo, keyed by title */
 const MEDIA = {
