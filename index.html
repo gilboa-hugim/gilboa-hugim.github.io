@@ -337,12 +337,36 @@ dialog.terms[open]{display:grid;grid-template-rows:auto 1fr auto}
 .card:hover .shot .badge{transform:scale(1.07) rotate(-4deg)}
 .shot .badge .ico{width:1.85rem;height:1.85rem}
 .card-top{position:relative;padding:1.1rem 1.3rem;border-bottom:1px solid var(--rule);
-  display:flex;flex-wrap:wrap;gap:.7rem 1.2rem;align-items:flex-start;justify-content:space-between}
+  display:flex;gap:.6rem;align-items:flex-start}
+.card-top-main{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:.7rem 1.2rem;
+  align-items:flex-start;justify-content:space-between}
 .card-top h3{font-size:var(--s-2)}
 .card-sub{font-size:var(--s--1);color:var(--muted);margin-top:.2rem}
 .pillrow{display:flex;flex-wrap:wrap;gap:.35rem}
 .pill{font-size:.73rem;font-weight:500;padding:.16rem .65rem;border-radius:999px;color:var(--muted);
   background:color-mix(in srgb,var(--tone) 16%,transparent);border:1px solid color-mix(in srgb,var(--tone) 38%,transparent)}
+
+/* share button — one per card, deep-links with #id */
+.share-btn{position:relative;flex:none;display:grid;place-items:center;width:2.3rem;height:2.3rem;
+  border-radius:999px;background:var(--surface-2);border:1px solid var(--rule);color:var(--muted);
+  cursor:pointer;transition:background .15s,color .15s,border-color .15s,transform .15s}
+.share-btn:hover{background:color-mix(in srgb,var(--tone) 22%,var(--surface-2));color:var(--ink);
+  border-color:color-mix(in srgb,var(--tone) 55%,var(--rule));transform:translateY(-1px)}
+.share-btn .ico{width:1.15rem;height:1.15rem}
+.share-btn.copied{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.share-btn .bubble{position:absolute;z-index:5;bottom:calc(100% + .5rem);inset-inline-end:0;
+  background:var(--ink);color:var(--surface);font-size:.72rem;font-weight:700;white-space:nowrap;
+  padding:.4rem .7rem;border-radius:9px;box-shadow:0 8px 20px rgb(var(--shadow)/.24);
+  opacity:0;transform:translateY(4px);pointer-events:none;transition:opacity .16s,transform .16s}
+.share-btn.copied .bubble{opacity:1;transform:translateY(0)}
+
+/* the card a shared link points to, briefly */
+.card{scroll-margin-top:8.5rem}
+.card.linked{animation:card-flash 2.1s ease}
+@keyframes card-flash{
+  0%,100%{box-shadow:0 1px 0 transparent}
+  12%,52%{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 50%,transparent)}
+}
 .card-body{padding:1.2rem 1.3rem;display:grid;gap:1.1rem;min-width:0}
 .card-body p{color:var(--muted);font-weight:300;max-width:70ch}
 
@@ -410,6 +434,7 @@ footer a:hover{text-decoration:underline}
   html{scroll-padding-top:10.5rem}
   .sec{scroll-margin-top:10.5rem}
   .card-top,.card-body{padding-inline:1.05rem}
+  .card{scroll-margin-top:10.5rem}
   .tiles{grid-template-columns:repeat(auto-fill,minmax(8.5rem,1fr))}
 }
 
@@ -1381,19 +1406,26 @@ function seasonHTML(evs){
     ${e.url?`<div class="btns" style="margin-top:.4rem"><a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">לחצו להרשמה</a></div>`:""}
   </article>`).join("")+`</div>`;
 }
-function cardHTML(it){
+function cardHTML(it,idx){
   const [ic,ph] = MEDIA[it.title] || ["sparkle",null];
+  const cardId = ph || ("act-"+idx);
   const hay=[it.title,it.sub,it.blurb,(it.tags||[]).join(" "),
     (it.tables||[]).map(t=>t.cap+" "+t.rows.flat().join(" ")).join(" "),
     (it.tables2||[]).map(t=>t.cap+" "+t.rows.flat().join(" ")).join(" "),
     (it.season||[]).map(e=>e.title+" "+e.meta+" "+e.body).join(" "),
     (it.contacts||[]).flat().join(" ")].join(" ").toLowerCase();
-  return `<article class="card" data-cat="${it.cat}" data-hay="${esc(hay)}">
+  return `<article class="card" id="${cardId}" data-cat="${it.cat}" data-hay="${esc(hay)}">
     ${ph?`<div class="shot"><img src="${imgSrc(ph+'.webp')}" alt="${esc(it.title)}" width="900" height="560" loading="lazy" decoding="async">
       <span class="badge">${icon(ic)}</span></div>`:""}
     <div class="card-top">
-      <div><h3>${esc(it.title)}</h3>${it.sub?`<div class="card-sub">${esc(it.sub)}</div>`:""}</div>
-      ${it.tags?`<div class="pillrow">${it.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div>`:""}
+      <div class="card-top-main">
+        <div><h3>${esc(it.title)}</h3>${it.sub?`<div class="card-sub">${esc(it.sub)}</div>`:""}</div>
+        ${it.tags?`<div class="pillrow">${it.tags.map(t=>`<span class="pill">${esc(t)}</span>`).join("")}</div>`:""}
+      </div>
+      <button type="button" class="share-btn" data-share aria-label="שיתוף — ${esc(it.title)}">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 3v11M8 7l4-4 4 4"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></g></svg>
+        <span class="bubble">הקישור הועתק ✓</span>
+      </button>
     </div>
     <div class="card-body">
       ${it.blurb?`<p>${esc(it.blurb)}</p>`:""}
@@ -1485,6 +1517,52 @@ apply();
   const m=document.getElementById("marquee");
   const one=shots.map(s=>`<img src="${imgSrc(s+'.webp')}" alt="" width="178" height="222" loading="eager" decoding="async">`).join("");
   m.innerHTML=one+one;   // duplicated so the loop is seamless
+})();
+
+/* ── share a single activity ── */
+(function(){
+  function activityURL(card){
+    const u = new URL(location.href);
+    u.hash = card.id;
+    return u.toString();
+  }
+  function showCopied(btn){
+    const was = btn.getAttribute("aria-label");
+    btn.classList.add("copied");
+    btn.setAttribute("aria-label", "הקישור הועתק");
+    clearTimeout(btn._copyTimer);
+    btn._copyTimer = setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.setAttribute("aria-label", was);
+    }, 1800);
+  }
+  document.addEventListener("click", e => {
+    const btn = e.target.closest(".share-btn");
+    if (!btn) return;
+    const card = btn.closest(".card");
+    const title = card.querySelector("h3").textContent;
+    const url = activityURL(card);
+    const data = { title: `${title} — מועצה אזורית הגלבוע`, text: `${title} · חוברת החוגים תשפ״ז`, url };
+    if (navigator.share) {
+      navigator.share(data).catch(() => {});   // cancelling the sheet throws — nothing to do
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => showCopied(btn)).catch(() => window.prompt("העתיקו את הקישור:", url));
+    } else {
+      window.prompt("העתיקו את הקישור:", url);
+    }
+  });
+
+  // arriving via a shared link: bring the card into view and flag it briefly
+  if (location.hash) {
+    const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target && target.classList.contains("card")) {
+      requestAnimationFrame(() => {
+        target.scrollIntoView({ block: "start" });
+        target.classList.add("linked");
+        setTimeout(() => target.classList.remove("linked"), 2200);
+      });
+    }
+  }
 })();
 
 /* ═══════════════════════════════════════════════════════════════
