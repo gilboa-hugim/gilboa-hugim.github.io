@@ -112,6 +112,18 @@ img{display:block;max-width:100%}
 .chip .ico{--ic:currentColor}
 .chip[aria-pressed="true"] .ico .f{opacity:.45}
 
+/* ═══════ tab navigation: ראשי / חוגים ═══════ */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.tabbar{position:relative;z-index:5;display:flex;justify-content:center;gap:.6rem;
+  padding:1rem 1rem;background:var(--ground);border-bottom:1px solid var(--rule)}
+.tabbar-btn{font:inherit;font-weight:700;font-size:.94rem;cursor:pointer;
+  border:1.5px solid var(--rule);background:var(--surface);color:var(--muted);
+  padding:.6rem 1.9rem;border-radius:999px;transition:background .16s,color .16s,border-color .16s,transform .16s}
+.tabbar-btn:hover{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
+.tabbar-btn[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+@media (max-width:600px){.tabbar{gap:.4rem}.tabbar-btn{padding:.55rem 1.3rem;font-size:.86rem}}
+
 /* ═══════ hero ═══════ */
 .hero{position:relative;background:#0E0A28;color:#F3F1FF;overflow:hidden;isolation:isolate}
 .mesh{position:absolute;inset:-25% -10%;z-index:0;filter:blur(72px);opacity:.8;pointer-events:none}
@@ -513,6 +525,12 @@ footer a:hover{text-decoration:underline}
   <div class="strip-wrap"><div class="marquee" id="marquee" aria-hidden="true"></div></div>
 </header>
 
+<div class="tabbar" role="tablist" aria-label="ניווט ראשי">
+  <button type="button" class="tabbar-btn" data-tab="home" role="tab" aria-selected="true">ראשי</button>
+  <button type="button" class="tabbar-btn" data-tab="hugim" role="tab" aria-selected="false">חוגים</button>
+</div>
+
+<div class="tab-panel active" id="panel-home" role="tabpanel">
 <section class="intro" aria-label="דברי פתיחה ותקנון">
   <div class="wrap">
     <div class="intro-grid">
@@ -631,7 +649,9 @@ footer a:hover{text-decoration:underline}
     </div>
   </div>
 </section>
+</div>
 
+<div class="tab-panel" id="panel-hugim" role="tabpanel">
 <nav class="finder" aria-label="חיפוש וסינון פעילויות">
   <div class="wrap">
     <div class="finder-in">
@@ -655,6 +675,7 @@ footer a:hover{text-decoration:underline}
   <div id="sections"></div>
   <p class="empty" id="empty">לא נמצאו פעילויות שמתאימות לחיפוש. נסו מונח אחר או בחרו ״הכול״.</p>
 </main>
+</div>
 
 <footer>
   <div class="wrap f-in">
@@ -1613,18 +1634,55 @@ apply();
       window.prompt("העתיקו את הקישור:", url);
     }
   });
+})();
 
-  // arriving via a shared link: bring the card into view and flag it briefly
-  if (location.hash) {
-    const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-    if (target && target.classList.contains("card")) {
-      requestAnimationFrame(() => {
-        target.scrollIntoView({ block: "start" });
-        target.classList.add("linked");
-        setTimeout(() => target.classList.remove("linked"), 2200);
-      });
+/* ── tabs: ראשי / חוגים — hash-aware, so every existing deep link
+   (a shared activity, a category tile) still lands in the right place ── */
+(function () {
+  const PANELS = { home: document.getElementById("panel-home"), hugim: document.getElementById("panel-hugim") };
+  const BTNS = [...document.querySelectorAll(".tabbar-btn")];
+  const CATEGORY_IDS = new Set(CATS.map(c => c.id));
+
+  function activateTab(name) {
+    for (const key in PANELS) {
+      const on = key === name;
+      PANELS[key].classList.toggle("active", on);
+      PANELS[key].setAttribute("aria-hidden", String(!on));
     }
+    BTNS.forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
   }
+
+  BTNS.forEach(b => b.addEventListener("click", () => {
+    activateTab(b.dataset.tab);
+    history.replaceState(null, "", b.dataset.tab === "hugim" ? "#hugim" : location.pathname + location.search);
+    window.scrollTo({ top: 0 });
+  }));
+
+  function routeHash() {
+    const raw = decodeURIComponent(location.hash.slice(1));
+    if (!raw) { activateTab("home"); return; }
+    if (raw === "hugim") { activateTab("hugim"); return; }
+    if (CATEGORY_IDS.has(raw)) {
+      activateTab("hugim");
+      const el = document.getElementById(raw);
+      if (el) requestAnimationFrame(() => el.scrollIntoView({ block: "start" }));
+      return;
+    }
+    const card = document.getElementById(raw);
+    if (card && card.classList.contains("card")) {
+      activateTab("hugim");
+      requestAnimationFrame(() => {
+        card.scrollIntoView({ block: "start" });
+        card.classList.add("linked");
+        setTimeout(() => card.classList.remove("linked"), 2200);
+      });
+      return;
+    }
+    activateTab("home");   // unrecognised hash — safe default
+  }
+
+  routeHash();
+  window.addEventListener("hashchange", routeHash);
 })();
 
 /* ═══════════════════════════════════════════════════════════════
