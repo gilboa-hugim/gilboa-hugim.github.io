@@ -664,11 +664,27 @@ footer a:hover{text-decoration:underline}
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   מספר הילדים המוצג בקאונטר שבראש העמוד.
-   כדי לעדכן — שנו רק את המספר בשורה הבאה ושמרו.
+   מספר הילדים בקאונטר עולה לבד ב-3 בכל יום קלנדרי (לפי שעון ישראל),
+   כך שכל מי שנכנס לאתר באותו יום רואה בדיוק אותו מספר.
+
+   כדי לעדכן את הבסיס — למשל כשמגיע נתון הרשמות אמיתי חדש —
+   שנו את KIDS_BASE למספר הנכון, ואת KIDS_BASE_DATE לתאריך של היום
+   (בפורמט YYYY-MM-DD) ושמרו. מאותו רגע הקאונטר ימשיך לעלות מהמספר
+   הזה, שלוש בכל יום.
    ═══════════════════════════════════════════════════════════════ */
-const KIDS = 3534;
+const KIDS_BASE = 3534;
+const KIDS_BASE_DATE = "2026-08-30";
+const KIDS_DAILY_INCREMENT = 3;
 /* ═══════════════════════════════════════════════════════════════ */
+
+function israelDateKey(d = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(d); // YYYY-MM-DD
+}
+function daysBetween(fromKey, toKey) {
+  const a = new Date(fromKey + "T00:00:00Z"), b = new Date(toKey + "T00:00:00Z");
+  return Math.round((b - a) / 86400000);
+}
+const KIDS = KIDS_BASE + KIDS_DAILY_INCREMENT * Math.max(0, daysBetween(KIDS_BASE_DATE, israelDateKey()));
 
 const IMG = "img/";
 const IMGMAP = null;                 // hosted build: null · artifact build: inlined data URIs
