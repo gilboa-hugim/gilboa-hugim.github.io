@@ -213,6 +213,57 @@ img{display:block;max-width:100%}
   .l-badge .ico{width:1.45rem;height:1.45rem}
 }
 
+/* ═══════ terms gate ═══════ */
+dialog.terms{
+  width:min(46rem,calc(100vw - 2rem));max-width:none;max-height:min(88vh,52rem);
+  padding:0;border:1px solid var(--rule);border-radius:20px;background:var(--surface);color:var(--ink);
+  box-shadow:0 30px 80px rgba(10,8,32,.4);overflow:hidden}
+dialog.terms::backdrop{background:rgba(10,8,32,.62);backdrop-filter:blur(4px)}
+dialog.terms[open]{display:grid;grid-template-rows:auto 1fr auto}
+@media (prefers-reduced-motion:no-preference){
+  dialog.terms[open]{animation:t-in .22s ease-out}
+  @keyframes t-in{from{opacity:0;transform:translateY(10px) scale(.985)}}
+}
+
+.t-head{display:flex;gap:.9rem;align-items:center;padding:1.15rem 1.3rem;border-bottom:1px solid var(--rule);
+  background:linear-gradient(to left,color-mix(in srgb,var(--aqua) 16%,var(--surface)),var(--surface))}
+.t-head .l-badge{width:2.9rem;height:2.9rem;border-radius:14px}
+.t-head .l-badge .ico{width:1.6rem;height:1.6rem}
+.t-head h2{font-size:var(--s-2);line-height:1.2}
+.t-head p{font-size:var(--s--1);color:var(--muted);margin-top:.15rem}
+.t-x{margin-inline-start:auto;flex:none;background:none;border:0;cursor:pointer;color:var(--muted);
+  width:2.2rem;height:2.2rem;border-radius:10px;display:grid;place-items:center;font:inherit;font-size:1.3rem;line-height:1}
+.t-x:hover{background:var(--surface-2);color:var(--ink)}
+
+.t-scroll{overflow-y:auto;padding:1.2rem 1.3rem;scroll-behavior:smooth}
+.t-scroll .letter-body{padding:0;max-width:none;gap:.85rem}
+.t-end{height:1px}
+
+.t-foot{border-top:1px solid var(--rule);padding:1rem 1.3rem;display:grid;gap:.85rem;background:var(--surface-2)}
+.t-hint{font-size:var(--s--1);color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.t-hint.done{color:var(--aqua-deep);font-weight:600}
+.t-hint .t-jump{background:none;border:0;padding:0;margin-inline-start:.35rem;font:inherit;font-weight:600;
+  color:var(--accent);cursor:pointer;text-decoration:underline}
+.t-hint.done .t-jump{display:none}
+.t-check{display:flex;gap:.7rem;align-items:flex-start;cursor:pointer;font-size:var(--s-0);line-height:1.45}
+.t-check input{flex:none;width:1.35rem;height:1.35rem;margin:.1rem 0 0;accent-color:var(--accent);cursor:pointer}
+.t-check input:disabled{cursor:not-allowed;opacity:.45}
+.t-check.locked{color:var(--muted);cursor:not-allowed}
+.t-actions{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:flex-end}
+.t-actions .btn[disabled]{opacity:.4;pointer-events:none}
+.t-cancel{background:transparent;color:var(--muted);border:1.5px solid var(--rule);cursor:pointer;font:inherit;
+  font-weight:600;font-size:var(--s--1);padding:.55rem 1.2rem;border-radius:999px}
+.t-cancel:hover{border-color:var(--muted);color:var(--ink)}
+.t-go{cursor:pointer;font:inherit;border:0}
+
+/* the standing confirmation line under the search bar */
+.t-status{display:none;align-items:center;gap:.5rem;font-size:var(--s--1);color:var(--muted);
+  padding-bottom:.7rem;flex-wrap:wrap}
+.t-status.on{display:flex}
+.t-status .ico{width:1rem;height:1rem;color:var(--aqua-deep)}
+.t-status button{background:none;border:0;padding:0;font:inherit;color:var(--accent);font-weight:600;
+  cursor:pointer;text-decoration:underline}
+
 /* ═══════ finder ═══════ */
 .finder{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--ground) 84%,transparent);
   backdrop-filter:blur(16px) saturate(1.4);border-bottom:1px solid var(--rule)}
@@ -435,7 +486,7 @@ footer a:hover{text-decoration:underline}
         </div>
       </details>
 
-      <details class="letter">
+      <details class="letter" id="regulations">
         <summary>
           <span class="l-badge"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="f"><path d="M6 2.8h7.2L19 8.6V20a1.4 1.4 0 0 1-1.4 1.4H6A1.4 1.4 0 0 1 4.6 20V4.2A1.4 1.4 0 0 1 6 2.8z"/></g><g class="s"><path d="M6 2.8h7.2L19 8.6V20a1.4 1.4 0 0 1-1.4 1.4H6A1.4 1.4 0 0 1 4.6 20V4.2A1.4 1.4 0 0 1 6 2.8z"/><path d="M13.2 2.8v5.8H19"/><path d="M7.9 12.5h8.2M7.9 15.5h8.2M7.9 18.5h5.2"/></g></svg></span>
           <span class="l-head">
@@ -491,6 +542,11 @@ footer a:hover{text-decoration:underline}
       </label>
       <span class="count" id="count"></span>
     </div>
+    <p class="t-status" id="t-status">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M4 12.5l5 5L20 6.5"></path></g></svg>
+      <span>אישרתם את תקנון החוגים בתאריך <b class="t-when"></b>.</span>
+      <button type="button">לקריאה חוזרת</button>
+    </p>
     <div class="chips" id="chips" role="group" aria-label="סינון לפי תחום"></div>
   </div>
 </nav>
@@ -516,6 +572,32 @@ footer a:hover{text-decoration:underline}
     <p class="f-fine">התוכן, השעות והמחירים מבוססים על חוברת החוגים תשפ״ז. הנהלת המרכז הקהילתי שומרת לעצמה את הזכות לשנות את התוכנית, שעות וימי הפעילות במהלך שנת הפעילות בהודעה מראש למשתתפים. פתיחת כל חוג וקיומו מותנים במספר מינימלי של משתתפים.</p>
   </div>
 </footer>
+
+<dialog class="terms" id="terms" aria-labelledby="t-title">
+  <div class="t-head">
+    <span class="l-badge"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="f"><path d="M6 2.8h7.2L19 8.6V20a1.4 1.4 0 0 1-1.4 1.4H6A1.4 1.4 0 0 1 4.6 20V4.2A1.4 1.4 0 0 1 6 2.8z"/></g><g class="s"><path d="M6 2.8h7.2L19 8.6V20a1.4 1.4 0 0 1-1.4 1.4H6A1.4 1.4 0 0 1 4.6 20V4.2A1.4 1.4 0 0 1 6 2.8z"/><path d="M13.2 2.8v5.8H19"/><path d="M7.9 12.5h8.2M7.9 15.5h8.2M7.9 18.5h5.2"/></g></svg></span>
+    <div>
+      <h2 id="t-title">תקנון רישום והשתתפות בחוגים</h2>
+      <p>לפני המעבר להרשמה — נא לקרוא ולאשר</p>
+    </div>
+    <button type="button" class="t-x" data-close aria-label="סגירה">&times;</button>
+  </div>
+  <div class="t-scroll">
+    <div class="t-body"></div>
+    <div class="t-end"></div>
+  </div>
+  <div class="t-foot">
+    <p class="t-hint"><span class="t-hint-text">גללו לסוף התקנון כדי לאשר</span> <button type="button" class="t-jump">דלגו לסוף</button></p>
+    <label class="t-check locked">
+      <input type="checkbox" id="t-agree" disabled>
+      <span>קראתי, הבנתי ואני מאשר/ת את תקנון הרישום וההשתתפות בחוגים לשנת תשפ״ז.</span>
+    </label>
+    <div class="t-actions">
+      <button type="button" class="t-cancel" data-close>ביטול</button>
+      <button type="button" class="btn t-go" disabled>המשך להרשמה</button>
+    </div>
+  </div>
+</dialog>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
@@ -1365,6 +1447,144 @@ apply();
   const m=document.getElementById("marquee");
   const one=shots.map(s=>`<img src="${imgSrc(s+'.webp')}" alt="" width="178" height="222" loading="eager" decoding="async">`).join("");
   m.innerHTML=one+one;   // duplicated so the loop is seamless
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   שער התקנון — נפתח לפני מעבר להרשמה לחוג.
+   כמה ימים לזכור את האישור לפני שנשאל שוב:
+   0 = לשאול בכל פעם מחדש.
+   ═══════════════════════════════════════════════════════════════ */
+const TERMS_REMEMBER_DAYS = 30;
+const TERMS_VERSION = "תשפ״ז";
+/* ═══════════════════════════════════════════════════════════════ */
+
+(function () {
+  const KEY = "gilboa-terms";
+  const dlg = document.getElementById("terms");
+  const scroll = dlg.querySelector(".t-scroll");
+  const box = dlg.querySelector(".t-body");
+  const chk = dlg.querySelector("#t-agree");
+  const go = dlg.querySelector(".t-go");
+  const hint = dlg.querySelector(".t-hint");
+  const hintText = dlg.querySelector(".t-hint-text");
+  const label = dlg.querySelector(".t-check");
+  const status = document.getElementById("t-status");
+  const statusWhen = status.querySelector(".t-when");
+
+  // one source of truth: the regulations already published on the page
+  const source = document.querySelector("#regulations .letter-body");
+  if (source) box.appendChild(source.cloneNode(true));
+
+  const store = {
+    read() {
+      try { return JSON.parse(localStorage.getItem(KEY) || "null"); }
+      catch (e) { return null; }
+    },
+    write(v) {
+      try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {}
+    }
+  };
+
+  function accepted() {
+    if (!TERMS_REMEMBER_DAYS) return null;
+    const v = store.read();
+    if (!v || v.version !== TERMS_VERSION) return null;
+    const age = (Date.now() - v.at) / 86400000;
+    return age <= TERMS_REMEMBER_DAYS ? v : null;
+  }
+
+  function showStatus() {
+    const v = accepted();
+    if (!v) { status.classList.remove("on"); return; }
+    statusWhen.textContent = new Date(v.at).toLocaleDateString("he-IL");
+    status.classList.add("on");
+  }
+
+  let pending = null, opener = null;
+
+  function reset() {
+    chk.checked = false;
+    chk.disabled = true;
+    go.disabled = true;
+    label.classList.add("locked");
+    hint.classList.remove("done");
+    hintText.textContent = "גללו לסוף התקנון כדי לאשר";
+    scroll.scrollTop = 0;
+  }
+
+  function unlock() {
+    if (!chk.disabled) return;
+    chk.disabled = false;
+    label.classList.remove("locked");
+    hint.classList.add("done");
+    hintText.textContent = "הגעתם לסוף התקנון — אפשר לאשר";
+  }
+
+  // "reached the end" — an observer catches wheel, keyboard, touch and find-in-page alike
+  function atEnd() {
+    return scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 24;
+  }
+  const sentinel = dlg.querySelector(".t-end");
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      es => { if (es.some(e => e.isIntersecting)) unlock(); },
+      { root: scroll, threshold: 0.01 }
+    ).observe(sentinel);
+  }
+  scroll.addEventListener("scroll", () => { if (atEnd()) unlock(); }, { passive: true });
+  scroll.addEventListener("keyup", e => { if (e.key === "End" || atEnd()) unlock(); });
+  dlg.querySelector(".t-jump").addEventListener("click", () => {
+    sentinel.scrollIntoView({ block: "end", behavior: "smooth" });
+    unlock();                       // the reader asked to skip ahead; don't trap them
+  });
+
+  chk.addEventListener("change", () => { go.disabled = !chk.checked; });
+
+  go.addEventListener("click", () => {
+    if (!chk.checked) return;
+    store.write({ ok: true, at: Date.now(), version: TERMS_VERSION });
+    showStatus();
+    const href = pending;
+    dlg.close();
+    if (href) window.open(href, "_blank", "noopener");
+  });
+
+  dlg.querySelectorAll("[data-close]").forEach(b =>
+    b.addEventListener("click", () => dlg.close()));
+
+  dlg.addEventListener("close", () => {
+    pending = null;
+    if (opener && document.contains(opener)) opener.focus();
+    opener = null;
+  });
+
+  function open(href, trigger) {
+    pending = href; opener = trigger || null;
+    reset();
+    dlg.showModal();
+    // a short policy may already be fully visible, so nothing to scroll
+    requestAnimationFrame(() => { if (atEnd()) unlock(); });
+    setTimeout(() => { if (atEnd()) unlock(); }, 120);
+  }
+
+  // which links count as signing up for an activity
+  function isRegistration(a) {
+    if (a.closest(".season")) return false;          // shows and one-off events
+    if (a.classList.contains("reg")) return true;
+    return /הרשמה/.test(a.textContent || "");
+  }
+
+  document.addEventListener("click", e => {
+    const a = e.target.closest("a[href]");
+    if (!a || !isRegistration(a)) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;  // let power users through
+    if (accepted()) return;
+    e.preventDefault();
+    open(a.href, a);
+  });
+
+  status.querySelector("button").addEventListener("click", () => open(null, null));
+  showStatus();
 })();
 </script>
 
