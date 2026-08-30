@@ -309,6 +309,13 @@ dialog.terms[open]{display:grid;grid-template-rows:auto 1fr auto}
 .search input:focus{outline:none}
 .search .ico{width:18px;height:18px;color:var(--muted)}
 .count{font-size:var(--s--1);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:500}
+.back-cats{display:inline-flex;align-items:center;gap:.4rem;margin-inline-start:auto;
+  font:inherit;font-size:var(--s--1);font-weight:700;cursor:pointer;
+  border:1px solid var(--rule);background:var(--surface);color:var(--accent);
+  padding:.4rem .95rem;border-radius:999px;transition:background .15s,border-color .15s}
+.back-cats .ico{width:1rem;height:1rem}
+.back-cats:hover{background:color-mix(in srgb,var(--accent) 10%,var(--surface));border-color:var(--accent)}
+.back-cats[hidden]{display:none}
 .chips{display:flex;gap:.4rem;overflow-x:auto;padding-block:.4rem .8rem;scrollbar-width:thin}
 .chip{flex:none;display:inline-flex;align-items:center;gap:.4rem;font:inherit;font-size:var(--s--1);font-weight:500;
   cursor:pointer;border:1px solid var(--rule);background:var(--surface);color:var(--muted);
@@ -660,6 +667,10 @@ footer a:hover{text-decoration:underline}
         <input id="q" type="search" placeholder="חיפוש חוג, יישוב, גיל או מדריך…" autocomplete="off" aria-label="חיפוש פעילות">
       </label>
       <span class="count" id="count"></span>
+      <button type="button" class="back-cats" id="backCats" hidden>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M14.5 6l6 6-6 6M20 12H4.5"></path></g></svg>
+        כל התחומים
+      </button>
     </div>
     <p class="t-status" id="t-status">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M4 12.5l5 5L20 6.5"></path></g></svg>
@@ -1542,27 +1553,41 @@ document.getElementById("tiles").innerHTML = CATS.map(c=>{
 }).join("");
 
 const chipsEl=document.getElementById("chips");
-chipsEl.innerHTML=`<button class="chip" data-f="all" aria-pressed="true">הכול</button>`+
+chipsEl.innerHTML=`<button class="chip" data-f="all" aria-pressed="false">הכול</button>`+
   CATS.map(c=>`<button class="chip" data-f="${c.id}" aria-pressed="false">${icon(c.icon)}${esc(c.name)}</button>`).join("");
 
 const qEl=document.getElementById("q"), countEl=document.getElementById("count"),
       emptyEl=document.getElementById("empty"), tileWrap=document.querySelector(".tilewrap");
-let filter="all";
+let filter=null;
+const backCatsEl=document.getElementById("backCats");
 function apply(){
-  const q=qEl.value.trim().toLowerCase(); let shown=0;
+  const q=qEl.value.trim().toLowerCase();
+  const browsing = filter!==null || q!=="";
+  let shown=0;
   document.querySelectorAll(".sec").forEach(sec=>{
     let n=0;
-    sec.querySelectorAll(".card").forEach(card=>{
-      const on=(filter==="all"||card.dataset.cat===filter)&&(!q||card.dataset.hay.includes(q));
-      card.classList.toggle("hide",!on); if(on)n++;
-    });
+    if(browsing){
+      sec.querySelectorAll(".card").forEach(card=>{
+        const catOK = filter===null||filter==="all"||card.dataset.cat===filter;
+        const on = catOK&&(!q||card.dataset.hay.includes(q));
+        card.classList.toggle("hide",!on); if(on)n++;
+      });
+    }
     sec.classList.toggle("hide",n===0); shown+=n;
   });
-  const filtering=q||filter!=="all";
-  tileWrap.classList.toggle("hide",!!filtering);
-  emptyEl.classList.toggle("on",shown===0);
-  countEl.textContent=filtering?`${shown} מתוך ${ITEMS.length} פעילויות`:`${ITEMS.length} פעילויות`;
+  tileWrap.classList.toggle("hide",browsing);
+  backCatsEl.hidden=!browsing;
+  emptyEl.classList.toggle("on",browsing&&shown===0);
+  countEl.textContent = browsing
+    ? `${shown} מתוך ${ITEMS.length} פעילויות`
+    : `${ITEMS.length} פעילויות ב-${CATS.length} תחומים`;
 }
+function resetToCategories(){
+  filter=null; qEl.value="";
+  chipsEl.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed","false"));
+  apply();
+}
+backCatsEl.addEventListener("click",resetToCategories);
 qEl.addEventListener("input",apply);
 chipsEl.addEventListener("click",e=>{
   const b=e.target.closest(".chip"); if(!b) return;
@@ -1658,12 +1683,19 @@ apply();
     window.scrollTo({ top: 0 });
   }));
 
+  function selectCategory(id) {
+    filter = id;
+    chipsEl.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.f === id)));
+    apply();
+  }
+
   function routeHash() {
     const raw = decodeURIComponent(location.hash.slice(1));
     if (!raw) { activateTab("home"); return; }
     if (raw === "hugim") { activateTab("hugim"); return; }
     if (CATEGORY_IDS.has(raw)) {
       activateTab("hugim");
+      selectCategory(raw);
       const el = document.getElementById(raw);
       if (el) requestAnimationFrame(() => el.scrollIntoView({ block: "start" }));
       return;
@@ -1671,6 +1703,7 @@ apply();
     const card = document.getElementById(raw);
     if (card && card.classList.contains("card")) {
       activateTab("hugim");
+      selectCategory(card.dataset.cat);   // reveal the card's own category instead of the empty picker
       requestAnimationFrame(() => {
         card.scrollIntoView({ block: "start" });
         card.classList.add("linked");
