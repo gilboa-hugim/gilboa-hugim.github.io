@@ -2036,9 +2036,16 @@ const TERMS_VERSION = "תשפ״ז";
   const fmtTime = t => (t || "").slice(0, 5);
 
   function eventHTML(e) {
-    const dateLabel = e.start_date === e.end_date ? fmtDate(e.start_date)
-      : `${fmtDate(e.start_date)} – ${fmtDate(e.end_date)}`;
-    const timeLabel = e.start_time ? `${fmtTime(e.start_time)}–${fmtTime(e.end_time)}` : "";
+    /* Only widen to a range when the end really is later — a typo in the manager
+       (end before start) must not surface as "8 בספטמבר – 23 באוגוסט". */
+    const spansDays = e.end_date && e.end_date > e.start_date;
+    const dateLabel = spansDays ? `${fmtDate(e.start_date)} – ${fmtDate(e.end_date)}`
+                                : fmtDate(e.start_date);
+    const endsLater = e.end_time && e.end_time > e.start_time;
+    const timeLabel = e.start_time
+      ? (spansDays || !endsLater ? fmtTime(e.start_time)
+                                 : `${fmtTime(e.start_time)}–${fmtTime(e.end_time)}`)
+      : "";
     const priceLabel = e.cost_type === "free" ? "חינם" : (e.price ? `₪${e.price}` : "בתשלום");
     return `<article class="ev">
       <span class="ev-date">${esc(dateLabel)}</span>
