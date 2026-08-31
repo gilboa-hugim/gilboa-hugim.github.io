@@ -537,32 +537,6 @@ footer a:hover{text-decoration:underline}
     padding:.62rem .95rem;font-size:.8rem;gap:.45rem}
   .wa-float .wa-ico{width:1.2rem;height:1.2rem}
 }
-
-/* ═══════ floating events CTA — stacked above the WhatsApp button ═══════ */
-.ev-float{
-  position:fixed;z-index:70;font:inherit;
-  inset-inline-end:1.25rem;
-  bottom:max(4.75rem, calc(env(safe-area-inset-bottom, 0px) + 4.35rem));
-  display:inline-flex;align-items:center;gap:.55rem;
-  background:linear-gradient(105deg,var(--accent) 0%,var(--accent-2) 100%);color:var(--on-accent);
-  font-family:"Heebo",sans-serif;font-weight:700;font-size:.9rem;
-  padding:.72rem 1.15rem;border-radius:999px;border:1px solid rgba(255,255,255,.22);
-  box-shadow:0 10px 28px rgb(var(--shadow)/.28);cursor:pointer;
-  transition:transform .18s ease,box-shadow .18s ease;
-}
-.ev-float:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgb(var(--shadow)/.32)}
-.ev-float:active{transform:translateY(0)}
-.ev-float:focus-visible{outline:3px solid var(--on-accent);outline-offset:3px}
-.ev-float .ico{width:1.3rem;height:1.3rem;flex:none;color:#fff}
-.ev-float .ico .f{fill:#fff;opacity:.35}
-@media (prefers-reduced-motion:no-preference){
-  .ev-float{animation:wa-in .5s cubic-bezier(.2,.9,.3,1.2) .38s backwards}
-}
-@media (max-width:600px){
-  .ev-float{inset-inline-end:.85rem;bottom:max(3.95rem, calc(env(safe-area-inset-bottom, 0px) + 3.55rem));
-    padding:.62rem .95rem;font-size:.8rem;gap:.45rem}
-  .ev-float .ico{width:1.15rem;height:1.15rem}
-}
 </style>
 </head>
 <body>
@@ -583,9 +557,12 @@ footer a:hover{text-decoration:underline}
   <div class="strip-wrap"><div class="marquee" id="marquee" aria-hidden="true"></div></div>
 </header>
 
-<div class="tabbar" role="tablist" aria-label="ניווט ראשי">
-  <button type="button" class="tabbar-btn" data-tab="home" role="tab" aria-selected="true">ראשי</button>
-  <button type="button" class="tabbar-btn" data-tab="hugim" role="tab" aria-selected="false">חוגים</button>
+<div class="tabbar">
+  <div role="tablist" aria-label="ניווט ראשי" style="display:flex;gap:.6rem">
+    <button type="button" class="tabbar-btn" data-tab="home" role="tab" aria-selected="true">ראשי</button>
+    <button type="button" class="tabbar-btn" data-tab="hugim" role="tab" aria-selected="false">חוגים</button>
+  </div>
+  <button type="button" class="tabbar-btn" id="events-btn" aria-haspopup="dialog">אירועים</button>
 </div>
 
 <div class="tab-panel active" id="panel-home" role="tabpanel">
@@ -754,14 +731,6 @@ footer a:hover{text-decoration:underline}
     <p class="f-fine">התוכן, השעות והמחירים מבוססים על חוברת החוגים תשפ״ז. הנהלת המרכז הקהילתי שומרת לעצמה את הזכות לשנות את התוכנית, שעות וימי הפעילות במהלך שנת הפעילות בהודעה מראש למשתתפים. פתיחת כל חוג וקיומו מותנים במספר מינימלי של משתתפים.</p>
   </div>
 </footer>
-
-<button type="button" class="ev-float" id="events-btn" aria-haspopup="dialog">
-  <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
-    <g class="f"><rect x="3.4" y="4.6" width="17.2" height="16" rx="2.6"/></g>
-    <g class="s"><rect x="3.4" y="4.6" width="17.2" height="16" rx="2.6"/><path d="M3.4 9.6h17.2M7.6 2.8v3.6M16.4 2.8v3.6"/><path d="M7.6 13.4h2M11.6 13.4h2M15.6 13.4h2M7.6 16.8h2M11.6 16.8h2"/></g>
-  </svg>
-  <span>אירועים קרובים</span>
-</button>
 
 <a class="wa-float" href="https://chat.whatsapp.com/CU1oa8a16s6D41CRQ32jPu" target="_blank" rel="noopener">
   <svg class="wa-ico" viewBox="0 0 24 24" aria-hidden="true">
@@ -1760,7 +1729,7 @@ apply();
    (a shared activity, a category tile) still lands in the right place ── */
 (function () {
   const PANELS = { home: document.getElementById("panel-home"), hugim: document.getElementById("panel-hugim") };
-  const BTNS = [...document.querySelectorAll(".tabbar-btn")];
+  const BTNS = [...document.querySelectorAll(".tabbar-btn[data-tab]")];
   const CATEGORY_IDS = new Set(CATS.map(c => c.id));
 
   function activateTab(name) {
