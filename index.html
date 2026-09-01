@@ -410,6 +410,20 @@ dialog.events[open]{display:grid;grid-template-rows:auto 1fr}
   box-shadow:0 6px 18px rgba(10,8,32,.32);transition:transform .25s}
 .card:hover .shot .badge{transform:scale(1.07) rotate(-4deg)}
 .shot .badge .ico{width:1.85rem;height:1.85rem}
+/* a card still awaiting its photo: a toned band carrying the activity's mark,
+   so the grid keeps a visual header instead of a missing block */
+.shot-ph{display:grid;place-items:center;aspect-ratio:16/5;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--tone) 34%,var(--surface-2)),var(--surface-2))}
+.shot-ph .badge{display:grid;place-items:center;width:3.4rem;height:3.4rem;border-radius:17px;
+  background:linear-gradient(155deg,color-mix(in srgb,var(--tone) 76%,#fff),color-mix(in srgb,var(--tone) 26%,#fff));
+  border:1px solid color-mix(in srgb,var(--tone) 58%,#fff);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.65),0 5px 14px rgb(var(--shadow)/.14);
+  transition:transform .25s}
+.card:hover .shot-ph .badge{transform:scale(1.07) rotate(-4deg)}
+.shot-ph .badge .ico{width:1.95rem;height:1.95rem;color:#1B1450}
+.shot-ph .badge .ico .f{fill:#fff;opacity:.6}
+.card:hover .shot-ph .badge .ico [class*="a-"]{animation-play-state:running}
+
 .card-top{position:relative;padding:1.1rem 1.3rem;border-bottom:1px solid var(--rule);
   display:flex;gap:.6rem;align-items:flex-start}
 .card-top-main{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:.7rem 1.2rem;
@@ -835,6 +849,8 @@ const I = {
   '<g class="a-spin"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.1l3.6 2.7-1.4 4.2H9.8L8.4 9.8z"/><path d="M12 3.4v3.7M4.3 9.4l4.1.4M19.7 9.4l-4.1.4M7.6 19.5l2.2-5.5M16.4 19.5l-2.2-5.5"/></g>'],
  basketball:['<circle cx="12" cy="12" r="8.6"/>',
   '<g class="a-spin"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/><path d="M6.1 6.1c3.3 3.3 3.3 8.5 0 11.8M17.9 6.1c-3.3 3.3-3.3 8.5 0 11.8"/></g>'],
+ rugby:['<ellipse cx="12" cy="12" rx="9" ry="5.6" transform="rotate(-40 12 12)"/>',
+  '<g class="a-rock"><ellipse cx="12" cy="12" rx="9" ry="5.6" transform="rotate(-40 12 12)"/><path d="M8.7 15.3l6.6-6.6"/><path d="M10.1 12.9l1.5 1.5M11.9 11.1l1.5 1.5M13.7 9.3l1.5 1.5"/></g>'],
  chess:['<path d="M8.6 15.6h6.8l.9 3.6H7.7z"/>',
   '<g class="a-rock"><path d="M12 2.9v2.5M10.6 4.1h2.8"/><circle cx="12" cy="8" r="2.4"/><path d="M9.5 10.6h5l-.8 5h-3.4z"/><path d="M8.6 15.6h6.8l.9 3.6H7.7z"/><path d="M6.7 19.2h10.6"/></g>'],
  belt:['<rect x="3" y="9" width="18" height="3.6" rx="1.3"/>',
@@ -934,6 +950,7 @@ const MEDIA = {
  "טניס — האקדמיה לטניס צפון":["tennis","tennis"],
  "התעמלות אומנותית":["gym","gymnastics"],
  "כדורעף — ״הפועל גלבוע״":["volleyball","volleyball"],
+ "מועדון רוגבי יזרעאל":["rugby",null],
  "שחייה":["swim","swimming"],
  "מחול קלאסי":["dance","ballet"],
  "מחול מודרני":["dance","modern"],
@@ -1193,6 +1210,27 @@ const ITEMS = [
   ]}],
  note:"להרשמה לקבוצות עין חרוד ואולם דדו — פנו לארנון, מנהל הענף.",
  contacts:[["ארנון · מנהל הענף","052-4845494"]]},
+
+{cat:"sport",title:"מועדון רוגבי יזרעאל",sub:"קיבוץ יזרעאל · רמת צבי · מגיל 4 ועד בוגרים",
+ tags:["רוגבי","בנים ובנות","גן – י״ב"],
+ blurb:"רוגבי הוא משחק קבוצתי שמלמד יותר מכול לשחק יחד — להגן על החבר, לקחת אחריות ולקום אחרי נפילה. מועדון רוגבי יזרעאל פועל מגיל הגן ועד הבוגרים, לבנים ולבנות, ומשלב אימונים שבועיים, משחקים ומחנות אימון לאורך כל השנה. אין צורך בניסיון קודם — המועדון מוביל בישראל בהצמחת שחקנים לנבחרת, ומקבל כל ילד וילדה שרוצים לנסות.",
+ tables:[
+  {cap:"קיבוץ יזרעאל",head:["קבוצה","מאמן/ת","ימים","שעה","מחיר"],rows:[
+   ["גילאי גן (4–6)","אמיר בויטלר","יום שני","16:30","200"],
+   ["כיתות א׳–ב׳ (עד גיל 8)","אמיר בויטלר","יום רביעי","16:30","200"],
+   ["כיתות ב׳–ד׳ (עד גיל 10)","צחי צפדיה","יום רביעי","16:30","200"],
+   ["כיתות ה׳–ו׳ (עד גיל 12)","רון רייס","שני ורביעי","16:30","300"],
+   ["כיתות ז׳–ח׳ (עד גיל 14)","קריס ארסמוס","שני ורביעי","17:30","300"],
+   ["כיתות ט׳–י׳ (עד גיל 16)","יהל רוזיליו","שני ורביעי","17:30","300"],
+   ["כיתות י״א–י״ב (עד גיל 18)","תומאס ברמן","שני ורביעי","17:30","300"],
+   ["מרכז מצוינות (בני 12–17)","קריס ארסמוס","שני ורביעי","לפני האימון הקבוצתי","200"]
+  ]},
+  {cap:"רמת צבי",head:["קבוצה","מאמן/ת","ימים","שעה","מחיר"],rows:[
+   ["גן, כיתות א׳–ב׳ (עד גיל 8)","יורי אולינייק","יום חמישי","17:00","200"]
+  ]}],
+ note:"אימון ניסיון ראשון ללא עלות. לכיתות ה׳–ו׳ מתקבלים גם תלמידי כיתה ד׳. מרכז המצוינות כולל אימוני חדר כושר מודרכים לפני האימונים הקבוצתיים, ואימון נוסף אחד בשבוע לשיפור יכולות. עונת הפעילות: 1.9.2026 – 30.6.2027.",
+ btns:[{label:"לחצו להרשמה",url:"https://plando.co.il/self_services/groups_registration?ak=20a6b970a8fcf8fa3d42438ec0646b98"}],
+ contacts:[["אמיר","052-3756100"],["דניאל","052-5012171"]]},
 
 {cat:"sport",title:"שחייה",sub:"בריכת הולצר ניר דוד",
  tags:["שחייה","מתחילים","מתקדמים"],
@@ -1664,7 +1702,8 @@ function cardHTML(it,idx){
     (it.contacts||[]).flat().join(" ")].join(" ").toLowerCase();
   return `<article class="card" id="${cardId}" data-cat="${it.cat}" data-hay="${esc(hay)}">
     ${ph?`<div class="shot"><img src="${imgSrc(ph+'.webp')}" alt="${esc(it.title)}" width="900" height="560" loading="lazy" decoding="async">
-      <span class="badge">${icon(ic)}</span></div>`:""}
+      <span class="badge">${icon(ic)}</span></div>`
+       :`<div class="shot-ph"><span class="badge">${icon(ic)}</span></div>`}
     <div class="card-top">
       <div class="card-top-main">
         <div><h3>${esc(it.title)}</h3>${it.sub?`<div class="card-sub">${esc(it.sub)}</div>`:""}</div>
