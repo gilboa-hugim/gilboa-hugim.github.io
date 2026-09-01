@@ -123,14 +123,17 @@ img{display:block;max-width:100%}
 /* ═══════ tab navigation: ראשי / חוגים ═══════ */
 .tab-panel{display:none}
 .tab-panel.active{display:block}
-.tabbar{position:relative;z-index:5;display:flex;justify-content:center;gap:.6rem;
-  padding:1rem 1rem;background:var(--ground);border-bottom:1px solid var(--rule)}
+/* wraps as a whole so the tab group never splits mid-way, leaving the
+   events button stranded above the last tab */
+.tabbar{position:relative;z-index:5;display:flex;flex-wrap:wrap;justify-content:center;
+  gap:.6rem;padding:1rem 1rem;background:var(--ground);border-bottom:1px solid var(--rule)}
 .tabbar-btn{font:inherit;font-weight:700;font-size:.94rem;cursor:pointer;
   border:1.5px solid var(--rule);background:var(--surface);color:var(--muted);
   padding:.6rem 1.9rem;border-radius:999px;transition:background .16s,color .16s,border-color .16s,transform .16s}
 .tabbar-btn:hover{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
 .tabbar-btn[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-@media (max-width:600px){.tabbar{gap:.4rem}.tabbar-btn{padding:.55rem 1.3rem;font-size:.86rem}}
+@media (max-width:600px){.tabbar{gap:.4rem;padding-inline:.6rem}
+  .tabbar-btn{padding:.5rem .95rem;font-size:.82rem}}
 
 /* ═══════ hero ═══════ */
 .hero{position:relative;background:#0E0A28;color:#F3F1FF;overflow:hidden;isolation:isolate}
@@ -386,6 +389,12 @@ dialog.events[open]{display:grid;grid-template-rows:auto 1fr}
 .tile b{position:relative;font-family:"Rubik",sans-serif;font-size:var(--s-1);line-height:1.2}
 .tile i{position:relative;font-style:normal;font-size:var(--s--1);color:var(--muted);font-variant-numeric:tabular-nums}
 
+/* ═══════ culture tab — one category, so it needs no picker or filter rail ═══════ */
+.tarbut-wrap{padding-block:clamp(1.5rem,4vw,2.5rem) 1rem}
+.tarbut-head{display:grid;gap:.5rem;margin-block-end:clamp(1.2rem,3vw,1.9rem);max-width:62ch}
+.tarbut-head h2{font-size:var(--s-4);font-weight:800}
+.tarbut-head p{font-size:var(--s-0);color:var(--muted);font-weight:300;line-height:1.6}
+
 /* ═══════ sections ═══════ */
 .sec{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:clamp(1.25rem,4vw,3rem);
   padding-block:clamp(2rem,5vw,3rem);border-top:1px solid var(--rule);scroll-margin-top:8.5rem}
@@ -583,6 +592,7 @@ footer a:hover{text-decoration:underline}
   <div role="tablist" aria-label="ניווט ראשי" style="display:flex;gap:.6rem">
     <button type="button" class="tabbar-btn" data-tab="home" role="tab" aria-selected="true">ראשי</button>
     <button type="button" class="tabbar-btn" data-tab="hugim" role="tab" aria-selected="false">חוגים</button>
+    <button type="button" class="tabbar-btn" data-tab="tarbut" role="tab" aria-selected="false">תרבות ופנאי</button>
   </div>
   <button type="button" class="tabbar-btn" id="events-btn" aria-haspopup="dialog">אירועים</button>
 </div>
@@ -735,6 +745,16 @@ footer a:hover{text-decoration:underline}
   <div class="tilewrap"><div class="tiles" id="tiles"></div></div>
   <div id="sections"></div>
   <p class="empty" id="empty">לא נמצאו פעילויות שמתאימות לחיפוש. נסו מונח אחר או בחרו ״הכול״.</p>
+</main>
+</div>
+
+<div class="tab-panel" id="panel-tarbut" role="tabpanel">
+<main class="wrap tarbut-wrap">
+  <header class="tarbut-head">
+    <h2>תרבות ופנאי</h2>
+    <p>עונת התרבות של הגלבוע — מנויי תיאטרון למבוגרים ולילדים, מופעים חד־פעמיים, אירועי קהילה, מוזיאונים ובית המוסיקה.</p>
+  </header>
+  <div class="cards" id="tarbut-cards"></div>
 </main>
 </div>
 
@@ -1359,32 +1379,6 @@ const ITEMS = [
  contacts:[["שחר מרום","050-2003800"]]},
 
 /* ============ תרבות ופנאי ============ */
-{cat:"tarbut",title:"בית המוסיקה יזרעאל גלבוע",sub:"קונסרבטוריון בפיקוח משרד החינוך · ק. יזרעאל",
- tags:["נגינה","שירה","מגיל שנתיים"],
- blurb:"לימודי נגינה ושירה פרטניים בהתאמה אישית, נגינה בהרכבים ותזמורות, שיעורים לגיל הרך, שיעורי תיאוריה ועוד. הלימודים מתאימים מגיל שנתיים ועד בכלל. תחילת שנת הלימודים ביום ראשון 30/8/2026.",
- btns:[{label:"לחצו להרשמה",url:"https://docs.google.com/forms/d/e/1FAIpQLSf0zUhnGJBOHvrHctwqGNriOmvI4l6j77NOYViJbolg3a9eAw/viewform"}],
- contacts:[["ווטסאפ / טלפון","050-9595131"]]},
-
-{cat:"tarbut",title:"המשכן לאמנות עין חרוד",sub:"מוזיאון האמנות הגדול בצפון",
- tags:["מוזיאון","תערוכות","פסטיבל"],
- blurb:"מהמוזיאונים הוותיקים והמובילים בישראל ומוזיאון האמנות הגדול בצפון. לאורך השנה מוצגות בו תערוכות מתחלפות של אמנים מהארץ ומהעולם, לצד תצוגות קבע מאוספיו העשירים. הביקור במשכן הוא הרבה מעבר לתערוכות: אולמות רחבי ידיים, חצרות נסתרות, גן פסלים וקפה ביקלס היפהפה, כולם בתוך אחד המבנים האייקוניים בישראל — יצירתו פורצת הדרך של האדריכל שמואל ביקלס.",
- btns:[
-   {label:"התערוכה ״על פניו יהודי״",url:"https://museumeinharod.org.il/%d7%a2%d7%9c-%d7%a4%d7%a0%d7%99%d7%95-%d7%99%d7%94%d7%95%d7%93%d7%99/"},
-   {label:"פסטיבל אפוס בגלבוע · 17–19 בספטמבר",url:"https://museumeinharod.org.il/%d7%a4%d7%a1%d7%98%d7%99%d7%91%d7%9c-%d7%90%d7%a4%d7%95%d7%a1-%d7%91%d7%92%d7%9c%d7%91%d7%95%d7%a2/"}
- ],
- note:"אפוס בגלבוע — לראשונה בגלבוע, פסטיבל סרטים דוקומנטריים בנושאי אמנות. סוף שבוע של קולנוע, אמנות ומפגשים במשכן."},
-
-{cat:"tarbut",title:"מוזיאון בית שטורמן",sub:"עין חרוד · מוזיאון אזורי",
- tags:["מוזיאון","סינמה בגלבוע","סיורים"],
- blurb:"מוזיאון אזורי העוסק בתרבות, התיישבות, טבע וסביבה באזור הגלבוע, המציג תערוכות אמנות מתחלפות לצד תצוגות קבע. לאורך השנה מתקיימים בו אירועי תרבות: שיחי גלריה, הקרנות סרטים ומפגש יוצרים — ״סינמה בגלבוע״, סיורים, פעילויות חינוכיות ותכניות לקהלים מגוונים.",
- btns:[{label:"beit-shturman.co.il",url:"http://www.beit-shturman.co.il"}],
- note:"שעות פעילות: א׳–ה׳. שישי ושבת סגור (קבוצות בתיאום מראש). שעות הפתיחה בסופי השבוע מתעדכנות מעת לעת — בדקו באתר המוזיאון לפני הגעתכם."},
-
-{cat:"tarbut",title:"מרכז מבקרים למורשת טרומפלדור וגדוד העבודה",sub:"תל יוסף · תערוכת ״טוב לחיות״",
- tags:["מורשת","תערוכות","מיצבים"],
- blurb:"מרכז המבקרים ותערוכת ״טוב לחיות״ מביאים את סיפור חייו המופלא של יוסף טרומפלדור, את אישיותו הכובשת ואת החיבור לגדוד העבודה באמצעות לוחות תצוגה וסרט קצר. תל יוסף הוא היישוב היחיד בישראל על שם יוסף טרומפלדור. לצד המרכז: תערוכת ״המאה״ — תצוגת הקיבוץ של פעם, ומיצב ״רוקמים נרות מהנשמה״ לזכר הנופלים.",
- contacts:[["שוקי","052-8511372"],["איה","052-3322917"]]},
-
 {cat:"tarbut",title:"מנוי תיאטרון לילדים והורים",sub:"בית ציזלינג · ימי שלישי 17:30",
  tags:["מנוי","הצגות ילדים","5 מופעים"],
  blurb:"חמש הצגות מוזיקליות לילדים ולהורים לאורך העונה, מיטב התיאטראות בישראל. כל הצגה נבחרה בקפידה, מתוך רצון להעניק רגעים של הנאה, השראה, מחשבה, צחוק והתרגשות.",
@@ -1501,6 +1495,32 @@ const ITEMS = [
  ]}],
  note:"ההרשמה ישירות אצל יעל. המחיר אינו כולל כניסות לאתרים. התוכנית ניתנת לשינויים קלים במקרה של מזג אוויר או שינוי בהסעה. אין החזר כספי על אי-הגעה לטיול שהתקיים.",
  contacts:[["יעל דרורי","054-5557057"]]},
+
+{cat:"tarbut",title:"בית המוסיקה יזרעאל גלבוע",sub:"קונסרבטוריון בפיקוח משרד החינוך · ק. יזרעאל",
+ tags:["נגינה","שירה","מגיל שנתיים"],
+ blurb:"לימודי נגינה ושירה פרטניים בהתאמה אישית, נגינה בהרכבים ותזמורות, שיעורים לגיל הרך, שיעורי תיאוריה ועוד. הלימודים מתאימים מגיל שנתיים ועד בכלל. תחילת שנת הלימודים ביום ראשון 30/8/2026.",
+ btns:[{label:"לחצו להרשמה",url:"https://docs.google.com/forms/d/e/1FAIpQLSf0zUhnGJBOHvrHctwqGNriOmvI4l6j77NOYViJbolg3a9eAw/viewform"}],
+ contacts:[["ווטסאפ / טלפון","050-9595131"]]},
+
+{cat:"tarbut",title:"המשכן לאמנות עין חרוד",sub:"מוזיאון האמנות הגדול בצפון",
+ tags:["מוזיאון","תערוכות","פסטיבל"],
+ blurb:"מהמוזיאונים הוותיקים והמובילים בישראל ומוזיאון האמנות הגדול בצפון. לאורך השנה מוצגות בו תערוכות מתחלפות של אמנים מהארץ ומהעולם, לצד תצוגות קבע מאוספיו העשירים. הביקור במשכן הוא הרבה מעבר לתערוכות: אולמות רחבי ידיים, חצרות נסתרות, גן פסלים וקפה ביקלס היפהפה, כולם בתוך אחד המבנים האייקוניים בישראל — יצירתו פורצת הדרך של האדריכל שמואל ביקלס.",
+ btns:[
+   {label:"התערוכה ״על פניו יהודי״",url:"https://museumeinharod.org.il/%d7%a2%d7%9c-%d7%a4%d7%a0%d7%99%d7%95-%d7%99%d7%94%d7%95%d7%93%d7%99/"},
+   {label:"פסטיבל אפוס בגלבוע · 17–19 בספטמבר",url:"https://museumeinharod.org.il/%d7%a4%d7%a1%d7%98%d7%99%d7%91%d7%9c-%d7%90%d7%a4%d7%95%d7%a1-%d7%91%d7%92%d7%9c%d7%91%d7%95%d7%a2/"}
+ ],
+ note:"אפוס בגלבוע — לראשונה בגלבוע, פסטיבל סרטים דוקומנטריים בנושאי אמנות. סוף שבוע של קולנוע, אמנות ומפגשים במשכן."},
+
+{cat:"tarbut",title:"מוזיאון בית שטורמן",sub:"עין חרוד · מוזיאון אזורי",
+ tags:["מוזיאון","סינמה בגלבוע","סיורים"],
+ blurb:"מוזיאון אזורי העוסק בתרבות, התיישבות, טבע וסביבה באזור הגלבוע, המציג תערוכות אמנות מתחלפות לצד תצוגות קבע. לאורך השנה מתקיימים בו אירועי תרבות: שיחי גלריה, הקרנות סרטים ומפגש יוצרים — ״סינמה בגלבוע״, סיורים, פעילויות חינוכיות ותכניות לקהלים מגוונים.",
+ btns:[{label:"beit-shturman.co.il",url:"http://www.beit-shturman.co.il"}],
+ note:"שעות פעילות: א׳–ה׳. שישי ושבת סגור (קבוצות בתיאום מראש). שעות הפתיחה בסופי השבוע מתעדכנות מעת לעת — בדקו באתר המוזיאון לפני הגעתכם."},
+
+{cat:"tarbut",title:"מרכז מבקרים למורשת טרומפלדור וגדוד העבודה",sub:"תל יוסף · תערוכת ״טוב לחיות״",
+ tags:["מורשת","תערוכות","מיצבים"],
+ blurb:"מרכז המבקרים ותערוכת ״טוב לחיות״ מביאים את סיפור חייו המופלא של יוסף טרומפלדור, את אישיותו הכובשת ואת החיבור לגדוד העבודה באמצעות לוחות תצוגה וסרט קצר. תל יוסף הוא היישוב היחיד בישראל על שם יוסף טרומפלדור. לצד המרכז: תערוכת ״המאה״ — תצוגת הקיבוץ של פעם, ומיצב ״רוקמים נרות מהנשמה״ לזכר הנופלים.",
+ contacts:[["שוקי","052-8511372"],["איה","052-3322917"]]},
 
 /* ============ G-LAB ============ */
 {cat:"glab",title:"אקדמיית התעופה והחלל",sub:"מרכז G-LAB · מנחה: אלון נגרי",
@@ -1775,7 +1795,18 @@ function cardHTML(it,idx){
   </article>`;
 }
 
-document.getElementById("sections").innerHTML = CATS.map(c=>{
+/* תרבות ופנאי has its own top-level tab, so it is not one of the clubs
+   categories: it stays out of the tiles, the chips and the counts. */
+const TARBUT_ID = "tarbut";
+const CLUB_CATS  = CATS.filter(c => c.id !== TARBUT_ID);
+const CLUB_ITEMS = ITEMS.filter(i => i.cat !== TARBUT_ID);
+const TARBUT_CAT = CATS.find(c => c.id === TARBUT_ID);
+
+document.getElementById("tarbut-cards").innerHTML =
+  ITEMS.filter(i => i.cat === TARBUT_ID).map(cardHTML).join("");
+document.getElementById("tarbut-cards").style.setProperty("--tone", T[TARBUT_CAT.tone]);
+
+document.getElementById("sections").innerHTML = CLUB_CATS.map(c=>{
   const items=ITEMS.filter(i=>i.cat===c.id);
   return `<section class="sec" id="${c.id}" data-cat="${c.id}" style="--tone:${T[c.tone]}">
     <div class="sec-aside">
@@ -1787,7 +1818,7 @@ document.getElementById("sections").innerHTML = CATS.map(c=>{
   </section>`;
 }).join("");
 
-document.getElementById("tiles").innerHTML = CATS.map(c=>{
+document.getElementById("tiles").innerHTML = CLUB_CATS.map(c=>{
   const n=ITEMS.filter(x=>x.cat===c.id).length;
   return `<a class="tile" href="#${c.id}" style="--tone:${T[c.tone]}">`+
     `<span class="plate">${orbHTML(c.id)}</span><b>${esc(c.name)}</b><i>${n} פעילויות</i></a>`;
@@ -1795,7 +1826,7 @@ document.getElementById("tiles").innerHTML = CATS.map(c=>{
 
 const chipsEl=document.getElementById("chips");
 chipsEl.innerHTML=`<button class="chip" data-f="all" aria-pressed="false">הכול</button>`+
-  CATS.map(c=>`<button class="chip" data-f="${c.id}" aria-pressed="false">${icon(c.icon)}${esc(c.name)}</button>`).join("");
+  CLUB_CATS.map(c=>`<button class="chip" data-f="${c.id}" aria-pressed="false">${icon(c.icon)}${esc(c.name)}</button>`).join("");
 
 const qEl=document.getElementById("q"), countEl=document.getElementById("count"),
       emptyEl=document.getElementById("empty"), tileWrap=document.querySelector(".tilewrap");
@@ -1820,8 +1851,8 @@ function apply(){
   backCatsEl.hidden=!browsing;
   emptyEl.classList.toggle("on",browsing&&shown===0);
   countEl.textContent = browsing
-    ? `${shown} מתוך ${ITEMS.length} פעילויות`
-    : `${ITEMS.length} פעילויות ב-${CATS.length} תחומים`;
+    ? `${shown} מתוך ${CLUB_ITEMS.length} פעילויות`
+    : `${CLUB_ITEMS.length} פעילויות ב-${CLUB_CATS.length} תחומים`;
 }
 function resetToCategories(){
   filter=null; qEl.value="";
@@ -1905,9 +1936,11 @@ apply();
 /* ── tabs: ראשי / חוגים — hash-aware, so every existing deep link
    (a shared activity, a category tile) still lands in the right place ── */
 (function () {
-  const PANELS = { home: document.getElementById("panel-home"), hugim: document.getElementById("panel-hugim") };
+  const PANELS = { home:   document.getElementById("panel-home"),
+                   hugim:  document.getElementById("panel-hugim"),
+                   tarbut: document.getElementById("panel-tarbut") };
   const BTNS = [...document.querySelectorAll(".tabbar-btn[data-tab]")];
-  const CATEGORY_IDS = new Set(CATS.map(c => c.id));
+  const CATEGORY_IDS = new Set(CLUB_CATS.map(c => c.id));
 
   function activateTab(name) {
     for (const key in PANELS) {
@@ -1918,9 +1951,11 @@ apply();
     BTNS.forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
   }
 
+  const HASH_FOR = { hugim: "#hugim", tarbut: "#tarbut" };
   BTNS.forEach(b => b.addEventListener("click", () => {
-    activateTab(b.dataset.tab);
-    history.replaceState(null, "", b.dataset.tab === "hugim" ? "#hugim" : location.pathname + location.search);
+    const t = b.dataset.tab;
+    activateTab(t);
+    history.replaceState(null, "", HASH_FOR[t] || location.pathname + location.search);
     window.scrollTo({ top: 0 });
   }));
 
@@ -1934,6 +1969,7 @@ apply();
     const raw = decodeURIComponent(location.hash.slice(1));
     if (!raw) { activateTab("home"); return; }
     if (raw === "hugim") { activateTab("hugim"); return; }
+    if (raw === TARBUT_ID) { activateTab("tarbut"); return; }
     if (CATEGORY_IDS.has(raw)) {
       activateTab("hugim");
       selectCategory(raw);
@@ -1943,8 +1979,10 @@ apply();
     }
     const card = document.getElementById(raw);
     if (card && card.classList.contains("card")) {
-      activateTab("hugim");
-      selectCategory(card.dataset.cat);   // reveal the card's own category instead of the empty picker
+      const inTarbut = card.dataset.cat === TARBUT_ID;
+      activateTab(inTarbut ? "tarbut" : "hugim");
+      // the clubs tab opens on a category picker; reveal the card's own category
+      if (!inTarbut) selectCategory(card.dataset.cat);
       requestAnimationFrame(() => {
         card.scrollIntoView({ block: "start" });
         card.classList.add("linked");
