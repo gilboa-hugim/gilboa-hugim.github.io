@@ -1379,6 +1379,12 @@ const ITEMS = [
  contacts:[["שחר מרום","050-2003800"]]},
 
 /* ============ תרבות ופנאי ============ */
+{cat:"tarbut",title:"בית המוסיקה יזרעאל גלבוע",sub:"קונסרבטוריון בפיקוח משרד החינוך · ק. יזרעאל",
+ tags:["נגינה","שירה","מגיל שנתיים"],
+ blurb:"קונסרבטוריון אזורי בפיקוח משרד החינוך. לימודי נגינה ושירה פרטניים בהתאמה אישית, נגינה בהרכבים ובתזמורות, שיעורים לגיל הרך ושיעורי תיאוריה. הלימודים מתאימים מגיל שנתיים ועד בכלל, בכל הרמות — ממי שמחזיק כלי בפעם הראשונה ועד נגנים מתקדמים.",
+ btns:[{label:"לחצו להרשמה",url:"https://docs.google.com/forms/d/e/1FAIpQLSf0zUhnGJBOHvrHctwqGNriOmvI4l6j77NOYViJbolg3a9eAw/viewform"}],
+ contacts:[["ווטסאפ / טלפון","050-9595131"]]},
+
 {cat:"tarbut",title:"מנוי תיאטרון לילדים והורים",sub:"בית ציזלינג · ימי שלישי 17:30",
  tags:["מנוי","הצגות ילדים","5 מופעים"],
  blurb:"חמש הצגות מוזיקליות לילדים ולהורים לאורך העונה, מיטב התיאטראות בישראל. כל הצגה נבחרה בקפידה, מתוך רצון להעניק רגעים של הנאה, השראה, מחשבה, צחוק והתרגשות.",
@@ -1495,12 +1501,6 @@ const ITEMS = [
  ]}],
  note:"ההרשמה ישירות אצל יעל. המחיר אינו כולל כניסות לאתרים. התוכנית ניתנת לשינויים קלים במקרה של מזג אוויר או שינוי בהסעה. אין החזר כספי על אי-הגעה לטיול שהתקיים.",
  contacts:[["יעל דרורי","054-5557057"]]},
-
-{cat:"tarbut",title:"בית המוסיקה יזרעאל גלבוע",sub:"קונסרבטוריון בפיקוח משרד החינוך · ק. יזרעאל",
- tags:["נגינה","שירה","מגיל שנתיים"],
- blurb:"לימודי נגינה ושירה פרטניים בהתאמה אישית, נגינה בהרכבים ותזמורות, שיעורים לגיל הרך, שיעורי תיאוריה ועוד. הלימודים מתאימים מגיל שנתיים ועד בכלל. תחילת שנת הלימודים ביום ראשון 30/8/2026.",
- btns:[{label:"לחצו להרשמה",url:"https://docs.google.com/forms/d/e/1FAIpQLSf0zUhnGJBOHvrHctwqGNriOmvI4l6j77NOYViJbolg3a9eAw/viewform"}],
- contacts:[["ווטסאפ / טלפון","050-9595131"]]},
 
 {cat:"tarbut",title:"המשכן לאמנות עין חרוד",sub:"מוזיאון האמנות הגדול בצפון",
  tags:["מוזיאון","תערוכות","פסטיבל"],
@@ -1892,7 +1892,7 @@ apply();
 
 /* ── hero photo marquee ── */
 (function(){
-  const shots=["hero-dance","toto","hiphop","judo","hero-gym","youth-movements","camps",
+  const shots=["hero-dance","toto","music","hiphop","judo","hero-gym","youth-movements","camps",
                "football","hero-volley","challenges","ballet","hero-karate","choir","hero-crowd"];
   const m=document.getElementById("marquee");
   const one=shots.map(s=>`<img src="${imgSrc(s+'.webp')}" alt="" width="178" height="222" loading="eager" decoding="async">`).join("");
