@@ -25,7 +25,7 @@
 <meta name="twitter:image" content="https://gilboa-hugim.github.io/share.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=Rubik:wght@700;800&display=swap">
 
 <style>
 /* ── palette taken from the council emblem: indigo #221A5C · aqua #9FD1DA · rose #C871A6 ── */
@@ -1895,7 +1895,9 @@ apply();
   const shots=["hero-dance","toto","music","hiphop","judo","hero-gym","youth-movements","camps",
                "football","hero-volley","challenges","ballet","hero-karate","choir","hero-crowd"];
   const m=document.getElementById("marquee");
-  const one=shots.map(s=>`<img src="${imgSrc(s+'.webp')}" alt="" width="178" height="222" loading="eager" decoding="async">`).join("");
+  /* "-sm" copies are cropped to the strip's own 4:5 box at 2x — the full-size
+     card images were being downloaded at five times the width they render at */
+  const one=shots.map(s=>`<img src="${imgSrc(s+'-sm.webp')}" alt="" width="178" height="222" loading="eager" decoding="async">`).join("");
   m.innerHTML=one+one;   // duplicated so the loop is seamless
 })();
 
