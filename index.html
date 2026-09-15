@@ -120,6 +120,21 @@ img{display:block;max-width:100%}
 .chip .ico{--ic:currentColor}
 .chip[aria-pressed="true"] .ico .f{opacity:.45}
 
+/* ═══════ accessibility helpers ═══════ */
+/* present to screen readers, absent from the page */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* the first thing a keyboard reaches, so the hero and tabs can be jumped */
+.skip{position:absolute;top:0;inset-inline-start:0;z-index:200;
+  transform:translateY(-120%);
+  background:var(--accent);color:var(--on-accent);
+  font-family:"Rubik",sans-serif;font-weight:700;font-size:var(--s--1);
+  padding:.7rem 1.3rem;border-radius:0 0 14px 0;text-decoration:none;
+  transition:transform .15s ease}
+.skip:focus{transform:translateY(0)}
+#main-content:focus{outline:none}
+
 /* ═══════ tab navigation: ראשי / חוגים ═══════ */
 .tab-panel{display:none}
 .tab-panel.active{display:block}
@@ -573,9 +588,12 @@ footer a:hover{text-decoration:underline}
 <body>
 
 
+<a class="skip" href="#main-content">דילוג לתוכן הראשי</a>
+
 <header class="hero">
   <div class="mesh" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
   <div class="wrap hero-in">
+    <h1 class="sr-only">חוגים, תרבות ופנאי בגלבוע — שנת תשפ״ז · מועצה אזורית הגלבוע</h1>
     <div class="crest">
       <img src="img/logo.png" alt="סמל המועצה האזורית הגלבוע" width="82" height="80">
       <span>מועצה אזורית הגלבוע<i>ספורט, תרבות, פנאי וקהילה · תשפ״ז</i></span>
@@ -590,14 +608,19 @@ footer a:hover{text-decoration:underline}
 
 <div class="tabbar">
   <div role="tablist" aria-label="ניווט ראשי" style="display:flex;gap:.6rem">
-    <button type="button" class="tabbar-btn" data-tab="home" role="tab" aria-selected="true">ראשי</button>
-    <button type="button" class="tabbar-btn" data-tab="hugim" role="tab" aria-selected="false">חוגים</button>
-    <button type="button" class="tabbar-btn" data-tab="tarbut" role="tab" aria-selected="false">תרבות ופנאי</button>
+    <button type="button" class="tabbar-btn" data-tab="home" role="tab" id="tab-home"
+            aria-controls="panel-home" aria-selected="true" tabindex="0">ראשי</button>
+    <button type="button" class="tabbar-btn" data-tab="hugim" role="tab" id="tab-hugim"
+            aria-controls="panel-hugim" aria-selected="false" tabindex="-1">חוגים</button>
+    <button type="button" class="tabbar-btn" data-tab="tarbut" role="tab" id="tab-tarbut"
+            aria-controls="panel-tarbut" aria-selected="false" tabindex="-1">תרבות ופנאי</button>
   </div>
   <button type="button" class="tabbar-btn" id="events-btn" aria-haspopup="dialog">אירועים</button>
 </div>
 
-<div class="tab-panel active" id="panel-home" role="tabpanel">
+<div id="main-content" tabindex="-1"></div>
+
+<div class="tab-panel active" id="panel-home" role="tabpanel" aria-labelledby="tab-home">
 <section class="intro" aria-label="דברי פתיחה ותקנון">
   <div class="wrap">
     <div class="intro-grid">
@@ -718,7 +741,7 @@ footer a:hover{text-decoration:underline}
 </section>
 </div>
 
-<div class="tab-panel" id="panel-hugim" role="tabpanel">
+<div class="tab-panel" id="panel-hugim" role="tabpanel" aria-labelledby="tab-hugim">
 <nav class="finder" aria-label="חיפוש וסינון פעילויות">
   <div class="wrap">
     <div class="finder-in">
@@ -726,7 +749,7 @@ footer a:hover{text-decoration:underline}
         <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="s"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.6-3.6"></path></g></svg>
         <input id="q" type="search" placeholder="חיפוש חוג, יישוב, גיל או מדריך…" autocomplete="off" aria-label="חיפוש פעילות">
       </label>
-      <span class="count" id="count"></span>
+      <span class="count" id="count" role="status" aria-live="polite" aria-atomic="true"></span>
       <button type="button" class="back-cats" id="backCats" hidden>
         <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M14.5 6l6 6-6 6M20 12H4.5"></path></g></svg>
         כל התחומים
@@ -748,7 +771,7 @@ footer a:hover{text-decoration:underline}
 </main>
 </div>
 
-<div class="tab-panel" id="panel-tarbut" role="tabpanel">
+<div class="tab-panel" id="panel-tarbut" role="tabpanel" aria-labelledby="tab-tarbut">
 <main class="wrap tarbut-wrap">
   <header class="tarbut-head">
     <h2>תרבות ופנאי</h2>
@@ -820,7 +843,7 @@ footer a:hover{text-decoration:underline}
     <button type="button" class="t-x" data-close aria-label="סגירה">&times;</button>
   </div>
   <div class="ev-scroll" id="ev-scroll">
-    <div id="ev-body"></div>
+    <div id="ev-body" role="status" aria-live="polite"></div>
   </div>
 </dialog>
 
@@ -1869,6 +1892,21 @@ chipsEl.addEventListener("click",e=>{
 });
 apply();
 
+/* ── a link that opens elsewhere should say so, but only to screen readers:
+      over a hundred registration links would be unreadable with it on screen ── */
+function labelExternalLinks(root){
+  (root||document).querySelectorAll('a[target="_blank"]:not([data-ext])').forEach(a=>{
+    a.dataset.ext="1";
+    const said=(a.getAttribute("aria-label")||"")+a.textContent;
+    if(/נפתח בחלון חדש/.test(said)) return;
+    const s=document.createElement("span");
+    s.className="sr-only";
+    s.textContent=" (נפתח בחלון חדש)";
+    a.appendChild(s);
+  });
+}
+labelExternalLinks();
+
 /* ── odometer ── */
 (function(){
   const el=document.getElementById("odo");
@@ -1950,8 +1988,28 @@ apply();
       PANELS[key].classList.toggle("active", on);
       PANELS[key].setAttribute("aria-hidden", String(!on));
     }
-    BTNS.forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+    BTNS.forEach(b => {
+      const on = b.dataset.tab === name;
+      b.setAttribute("aria-selected", String(on));
+      // roving tabindex: Tab reaches the tab strip once, arrows move within it
+      b.tabIndex = on ? 0 : -1;
+    });
   }
+
+  /* arrow-key navigation, as a tablist is expected to have.
+     RTL reading order: ArrowLeft advances, ArrowRight goes back. */
+  BTNS.forEach(b => b.addEventListener("keydown", e => {
+    const i = BTNS.indexOf(b);
+    let j = null;
+    if (e.key === "ArrowLeft")  j = (i + 1) % BTNS.length;
+    else if (e.key === "ArrowRight") j = (i - 1 + BTNS.length) % BTNS.length;
+    else if (e.key === "Home")  j = 0;
+    else if (e.key === "End")   j = BTNS.length - 1;
+    if (j === null) return;
+    e.preventDefault();
+    BTNS[j].focus();
+    BTNS[j].click();
+  }));
 
   const HASH_FOR = { hugim: "#hugim", tarbut: "#tarbut" };
   BTNS.forEach(b => b.addEventListener("click", () => {
@@ -2199,6 +2257,7 @@ const TERMS_VERSION = "תשפ״ז";
       body.innerHTML = events.length
         ? `<div class="season">${events.map(eventHTML).join("")}</div>`
         : emptyHTML();
+      labelExternalLinks(body);
     } catch (err) {
       body.innerHTML = errorHTML();
     }
