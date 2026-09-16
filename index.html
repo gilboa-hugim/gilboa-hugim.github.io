@@ -120,6 +120,43 @@ img{display:block;max-width:100%}
 .chip .ico{--ic:currentColor}
 .chip[aria-pressed="true"] .ico .f{opacity:.45}
 
+/* ═══════ micro-interactions ═══════
+   1 · press feedback — the site had exactly one :active state, so a tap on a
+       card, tile or registration button gave no sign it had registered. On a
+       phone, where the new page takes a moment, that reads as "nothing happened".
+   2 · panel cross-fade — three tabs now swap content instantly, which loses
+       the reader's place.
+   3 · filtered results settle in rather than snapping.
+   Kept deliberately small: this is a council service, not a showcase.        */
+
+.tile:active,
+.chip:active,
+.tabbar-btn:active,
+.btn:active,
+.reg:active,
+.share-btn:active,
+.cta-flipbook:active,
+.back-cats:active,
+.t-go:active,
+.t-cancel:active{transform:scale(.97)}
+/* the tile already lifts on hover — keep the lift, just press into it */
+.tile:active{transform:translateY(-5px) scale(.97)}
+.cta-flipbook:active{transform:translateY(-3px) scale(.99)}
+.reg:active,.btn:active{transition-duration:.06s}
+
+@media (prefers-reduced-motion:no-preference){
+  @keyframes panel-in{from{opacity:0;transform:translateY(6px)}}
+  .tab-panel.active{animation:panel-in .26s cubic-bezier(.2,.7,.3,1)}
+
+  @keyframes settle-in{from{opacity:0;transform:translateY(10px)}}
+  .card.settle{animation:settle-in .34s cubic-bezier(.2,.7,.3,1) backwards}
+  .card.settle:nth-of-type(2){animation-delay:.04s}
+  .card.settle:nth-of-type(3){animation-delay:.08s}
+  .card.settle:nth-of-type(4){animation-delay:.12s}
+  .card.settle:nth-of-type(5){animation-delay:.16s}
+  .card.settle:nth-of-type(n+6){animation-delay:.2s}
+}
+
 /* ═══════ accessibility helpers ═══════ */
 /* present to screen readers, absent from the page */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
@@ -1855,6 +1892,22 @@ const qEl=document.getElementById("q"), countEl=document.getElementById("count")
       emptyEl=document.getElementById("empty"), tileWrap=document.querySelector(".tilewrap");
 let filter=null;
 const backCatsEl=document.getElementById("backCats");
+
+/* restart the entrance animation on the cards a filter just revealed.
+   Only the first handful — animating forty-five at once is jank, not polish. */
+const STILL = matchMedia("(prefers-reduced-motion:reduce)");
+function settleCards(browsing){
+  if(STILL.matches) return;
+  // clear every card, not just the visible ones — a hidden card that kept the
+  // class would replay the animation the moment a later filter revealed it
+  document.querySelectorAll(".card.settle").forEach(c=>c.classList.remove("settle"));
+  if(!browsing) return;
+  const shown=document.querySelectorAll(".sec:not(.hide) .card:not(.hide)");
+  for(let i=0;i<Math.min(shown.length,10);i++){
+    void shown[i].offsetWidth;
+    shown[i].classList.add("settle");
+  }
+}
 function apply(){
   const q=qEl.value.trim().toLowerCase();
   const browsing = filter!==null || q!=="";
@@ -1873,6 +1926,8 @@ function apply(){
   tileWrap.classList.toggle("hide",browsing);
   backCatsEl.hidden=!browsing;
   emptyEl.classList.toggle("on",browsing&&shown===0);
+  settleCards(browsing);
+  markScrollableTables();   // a table only reports its width once its panel is shown
   countEl.textContent = browsing
     ? `${shown} מתוך ${CLUB_ITEMS.length} פעילויות`
     : `${CLUB_ITEMS.length} פעילויות ב-${CLUB_CATS.length} תחומים`;
@@ -1906,6 +1961,28 @@ function labelExternalLinks(root){
   });
 }
 labelExternalLinks();
+
+/* ── a schedule table that scrolls sideways has to be reachable by keyboard,
+      or on a phone its last columns — price and registration — cannot be
+      reached without a mouse. Only the tables that actually overflow become
+      tab stops, so wide screens gain none. ── */
+function markScrollableTables(){
+  document.querySelectorAll(".tw").forEach(t=>{
+    if(!t.clientWidth) return;                     // inside a hidden panel
+    if(t.scrollWidth > t.clientWidth + 1){
+      if(t.tabIndex !== 0){
+        t.tabIndex = 0;
+        const cap = t.querySelector("caption");
+        if(cap) t.setAttribute("aria-label", cap.textContent.trim());
+      }
+    }else if(t.hasAttribute("tabindex")){
+      t.removeAttribute("tabindex");
+      t.removeAttribute("aria-label");
+    }
+  });
+}
+markScrollableTables();
+addEventListener("resize", (()=>{let id;return ()=>{clearTimeout(id);id=setTimeout(markScrollableTables,150);};})());
 
 /* ═══════════════════════════════════════════════════════════════
    מדידת לחיצות — כמה אנשים לוחצים "הרשמה", ולאילו חוגים.
@@ -2049,6 +2126,7 @@ labelExternalLinks();
       // roving tabindex: Tab reaches the tab strip once, arrows move within it
       b.tabIndex = on ? 0 : -1;
     });
+    markScrollableTables();   // this panel's tables can only now be measured
   }
 
   /* arrow-key navigation, as a tablist is expected to have.
