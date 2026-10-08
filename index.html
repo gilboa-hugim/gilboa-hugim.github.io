@@ -120,6 +120,26 @@ img{display:block;max-width:100%}
 .chip .ico{--ic:currentColor}
 .chip[aria-pressed="true"] .ico .f{opacity:.45}
 
+/* ═══════ date chips (recurring series) ═══════ */
+.dates{display:grid;gap:.6rem}
+.dates-cap{font-family:"Rubik",sans-serif;font-size:var(--s-0);font-weight:700}
+.dates-next{font-size:var(--s--1);color:var(--muted);margin-top:-.2rem}
+.dates-next b{color:var(--ink);font-weight:700}
+.dates-grid{list-style:none;margin:0;padding:0;display:grid;gap:.5rem;
+  grid-template-columns:repeat(auto-fill,minmax(4.7rem,1fr))}
+.dt{position:relative;display:grid;justify-items:center;align-content:center;gap:.08rem;
+  padding:.6rem .3rem .55rem;border-radius:14px;border:1px solid var(--rule);background:var(--surface);
+  color:var(--ink);min-height:4.4rem}
+.dt-d{font-family:"Rubik",sans-serif;font-weight:800;font-size:1.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.dt-m{font-size:var(--s--1);color:var(--muted);white-space:nowrap}
+.dt-tag{margin-top:.2rem;font-size:.68rem;font-weight:700;line-height:1;padding:.18rem .5rem;
+  border-radius:999px;background:var(--tone);color:#1B1450}
+/* a date that has gone: quieter, but still real text at readable contrast */
+.dt.is-past{background:var(--surface-2);border-color:transparent}
+.dt.is-past .dt-d{color:var(--muted);font-weight:700}
+.dt.is-next{border:2px solid var(--tone);background:color-mix(in srgb,var(--tone) 13%,var(--surface))}
+.dt.is-last:not(.is-next){border-style:dashed}
+
 /* ═══════ micro-interactions ═══════
    1 · press feedback — the site had exactly one :active state, so a tap on a
        card, tile or registration button gave no sign it had registered. On a
@@ -1520,12 +1540,10 @@ const ITEMS = [
 {cat:"tarbut",title:"קבלת שבת בבית השיטה",sub:"מרחב בית השיטה · אחת לחודש · 17:30 · כניסה חופשית",
  tags:["קבלת שבת","קהילתי","כניסה חופשית"],
  blurb:"מפגש קהילתי חודשי לקבלת שבת, פתוח לכלל תושבי הגלבוע, במרחב בית השיטה. ערב שקט ומזמין לפתוח בו את השבת יחד — ללא עלות וללא צורך בהרשמה מראש.",
- tables:[{cap:"מועדי קבלת השבת · תשפ״ז",head:["מועד"],rows:[
-   ["4.9"],["9.10"],["30.10"],["20.11"],["11.12"],["1.1.2027"],["22.1.2027"],
-   ["19.2.2027"],["12.3.2027"],["2.4.2027"],["30.4.2027"],["21.5.2027"],
-   ["18.6.2027"],["9.7.2027"],["30.7.2027 — קבלת השבת האחרונה לעונה"]
- ]}],
- note:"הכניסה חופשית, בשעה 17:30.",
+ dates:{cap:"מועדי קבלת השבת · תשפ״ז",lastTag:"האחרונה",
+   list:["2026-09-04","2026-10-09","2026-10-30","2026-11-20","2026-12-11","2027-01-01","2027-01-22",
+         "2027-02-19","2027-03-12","2027-04-02","2027-04-30","2027-05-21","2027-06-18","2027-07-09","2027-07-30"]},
+ note:"הכניסה חופשית, בשעה 17:30. קבלת השבת ב-30.7.2027 היא האחרונה לעונה.",
  contacts:[["רינה","052-2743111"],["יעל","052-5254265"]]},
 
 {cat:"tarbut",title:"לטייל עם יעל",sub:"סדרת טיולים חודשית · הדרכה: יעל דרורי",
@@ -1793,6 +1811,30 @@ function seasonHTML(evs){
     ${e.url?`<div class="btns" style="margin-top:.4rem"><a class="btn" href="${esc(e.url)}" target="_blank" rel="noopener">לחצו להרשמה</a></div>`:""}
   </article>`).join("")+`</div>`;
 }
+/* a recurring series with a long list of dates: a table of one narrow column
+   wastes the screen and hides which date is next, so each date is a small chip */
+const MONTHS_SHORT=["ינו׳","פבר׳","מרץ","אפר׳","מאי","יוני","יולי","אוג׳","ספט׳","אוק׳","נוב׳","דצמ׳"];
+function datesHTML(d){
+  const today=israelDateKey();
+  const list=[...d.list].sort();
+  const next=list.find(k=>k>=today);
+  const last=list[list.length-1];
+  const thisYear=today.slice(0,4);
+  const chips=list.map(k=>{
+    const [y,m,day]=k.split("-").map(Number);
+    const past=k<today, isNext=k===next, isLast=k===last;
+    const cls=["dt",past?"is-past":"",isNext?"is-next":"",isLast?"is-last":""].filter(Boolean).join(" ");
+    const mon=MONTHS_SHORT[m-1]+(String(y)!==thisYear?` ׳${String(y).slice(2)}`:"");
+    const tag=isNext?"הקרובה":(isLast?(d.lastTag||"האחרונה"):"");
+    return `<li class="${cls}"><span class="dt-d">${day}</span><span class="dt-m">${mon}</span>${
+      tag?`<span class="dt-tag">${tag}</span>`:""}${past?`<span class="sr-only"> (עבר)</span>`:""}</li>`;
+  }).join("");
+  const nextLine=next
+    ? `<p class="dates-next">הקרובה: <b>${new Intl.DateTimeFormat("he-IL",{weekday:"long",day:"numeric",month:"long"}).format(new Date(next+"T00:00:00"))}</b></p>`
+    : "";
+  return `<section class="dates" aria-label="${esc(d.cap)}">
+    <h4 class="dates-cap">${esc(d.cap)}</h4>${nextLine}<ol class="dates-grid">${chips}</ol></section>`;
+}
 function cardHTML(it,idx){
   const [ic,ph] = MEDIA[it.title] || ["sparkle",null];
   /* photo name doubles as the share anchor; without a photo fall back to a
@@ -1822,6 +1864,7 @@ function cardHTML(it,idx){
     <div class="card-body">
       ${it.blurb?`<p>${esc(it.blurb)}</p>`:""}
       ${it.blurb2?`<p dir="rtl" lang="ar" style="font-size:1.05em">${esc(it.blurb2)}</p>`:""}
+      ${it.dates?datesHTML(it.dates):""}
       ${(it.tables||[]).map(tableHTML).join("")}
       ${(it.tables2||[]).map(tableHTML).join("")}
       ${it.season?seasonHTML(it.season):""}
